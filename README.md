@@ -11,10 +11,6 @@ Este repositorio contiene la estructura inicial del proyecto **Ecommerce ADS2**.
 
 ---
 
-> Nota: Este README se actualizará conforme se integren backend, frontend y otros servicios.
-
----
-
 ## Tecnologías Utilizadas
 
 ### Backend
@@ -23,6 +19,13 @@ Este repositorio contiene la estructura inicial del proyecto **Ecommerce ADS2**.
 - Spring Data JPA
 - PostgreSQL (Neon)
 - Maven
+
+### Frontend
+- Angular
+- TypeScript
+- HTML
+- CSS
+- SPA
 
 ## Requisitos Previos
 
@@ -79,5 +82,6 @@ El backend proporciona los siguientes endpoints principales:
 
 El proyecto utiliza PostgreSQL alojado en Neon. La estructura de la base de datos se gestiona automáticamente mediante JPA con la configuración `spring.jpa.hibernate.ddl-auto=update`.
 
-
 ---
+
+> Nota: Este README se actualizará conforme se integren backend, frontend y otros servicios.
