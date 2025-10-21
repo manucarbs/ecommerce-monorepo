@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { LoginComponent } from './pages/login/login';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   standalone: true,
   selector: 'app-root',
-  imports: [LoginComponent],
-  template: '<app-login></app-login>',
+  template: '', // nada visible
 })
-export class App {}
+export class App {
+  constructor(private auth: AuthService) {
+    this.auth.loginWithRedirect(); // redirige inmediatamente al login
+  }
+}
