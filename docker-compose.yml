@@ -1,19 +1,35 @@
-version: "3.9"
 services:
+  db:
+    image: postgres:16
+    container_name: ecommerce-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ecommerce_local
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build: ./backend
+    container_name: ecommerce-backend
     ports:
       - "8080:8080"
-    env_file:
-      - ./.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=${NEON_SSLMODE}&channelBinding=${NEON_CHANNELBINDING}
-      SPRING_DATASOURCE_USERNAME: ${NEON_USER}
-      SPRING_DATASOURCE_PASSWORD: ${NEON_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ecommerce_local
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend/ecommerce-frontend
+    container_name: ecommerce-frontend
     ports:
       - "4200:80"
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
