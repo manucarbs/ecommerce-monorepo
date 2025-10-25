@@ -2,6 +2,7 @@ version: "3.9"
 services:
   backend:
     build: ./backend
+    container_name: ecommerce-backend
     ports:
       - "8080:8080"
     env_file:
@@ -13,11 +14,10 @@ services:
 
   frontend:
     build: ./frontend/ecommerce-frontend
+    container_name: ecommerce-frontend
     ports:
       - "4200:80"
     depends_on:
       - backend
-
-
-
+      
       ##Este docker compose será para producción
