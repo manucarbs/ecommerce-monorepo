@@ -12,6 +12,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptorsFromDi()), // Importante para el interceptor
-    provideAuth0(authConfig)
+    provideAuth0(authConfig),
   ]
 };

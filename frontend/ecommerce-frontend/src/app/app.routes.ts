@@ -9,7 +9,11 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./pages/productos/productos').then(m => m.Productos)
+  },
+  {
+    path: 'createProduct',
+    loadComponent: () => import('./pages/sell-products/sell-products').then(m => m.SellProducts),
   },
   {
     path: 'dashboard',
@@ -19,5 +23,8 @@ export const routes: Routes = [
   {
     path: 'callback',
     loadComponent: () => import('./pages/callback/callback.component').then(m => m.CallbackComponent)
+  },
+  {path: '**',
+    redirectTo: 'home'
   }
 ];
