@@ -120,6 +120,6 @@ export class HomeComponent {
   }
 
   goToDashboard() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/home']);
   }
 }

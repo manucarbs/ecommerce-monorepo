@@ -1,12 +1,14 @@
-import { environment } from '../enviroments/environment';
+import { environment } from '../environments/environment';
 
 export const authConfig = {
   domain: environment.auth.domain,
   clientId: environment.auth.clientId,
   authorizationParams: {
-    redirect_uri: environment.auth.redirectUri,
+    audience: environment.auth.audience,
+    scope: environment.auth.scope,
+    redirect_uri: window.location.origin,
   },
   httpInterceptor: {
-    allowedList: environment.auth.allowedList || [],
+    allowedList: environment.allowedList,
   },
 };

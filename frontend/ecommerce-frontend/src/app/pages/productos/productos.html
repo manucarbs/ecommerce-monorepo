@@ -1,0 +1,111 @@
+<div id="home-screen" class="app-screen">
+  <div class="top-header">
+    <div class="logo-text">E-COMMERCE</div>
+  </div>
+
+  <!-- Buscador -->
+  <section class="search-container">
+    <input
+      class="search-bar"
+      [placeholder]="searchPlaceholder"
+      [value]="searchTerm()"
+      (input)="onSearch($event.target.value)"
+      aria-label="Buscar productos"
+    />
+  </section>
+
+  <!-- Contenido desplazable -->
+  <main class="main-content">
+    <!-- Categorías dinámicas -->
+    <h2 class="section-title">⭐ Categorías</h2>
+
+    <div class="category-grid" role="list">
+      <!-- Botón "Todas" -->
+      <button
+        class="category-item"
+        role="listitem"
+        type="button"
+        aria-label="Todas las categorías"
+        (click)="selectCategory(null)"
+        [class.active]="selectedCategory() === null"
+      >
+        <div class="category-circle">T</div>
+        <span>Todas</span>
+      </button>
+
+      <!-- Categorías desde API -->
+      @for (c of categories(); track c) {
+        <button
+          class="category-item"
+          role="listitem"
+          type="button"
+          aria-label="Categoría {{ c }}"
+          (click)="selectCategory(c)"
+          [class.active]="selectedCategory() === c"
+        >
+          <div class="category-circle">{{ c[0]?.toUpperCase() }}</div>
+          <span>{{ c }}</span>
+        </button>
+      }
+    </div>
+
+
+    <h2 class="section-title">✨ Últimas Novedades</h2>
+
+    @if (cargando()) {
+      <div class="state">Cargando…</div>
+    } @else if (errorMsg()) {
+      <div class="state error">{{ errorMsg() }}</div>
+    } @else {
+      <div class="product-grid">
+        @if (filteredProducts().length > 0) {
+          @for (p of filteredProducts(); track p.id) {
+            <app-product-card
+              [imageSrc]="getImagen(p)"
+              [imageAlt]="p.titulo"
+              [title]="p.titulo"
+              [description]="p.descripcion"
+              [price]="p.precio"
+              currency="USD"
+              [category]="p.categoria"
+              (cardClick)="openProduct(p)"
+            >
+            </app-product-card>
+          }
+        } @else {
+          <div class="state">Producto no fue encontrado.</div>
+        }
+      </div>
+    }
+
+    <div class="spacer"></div>
+  </main>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-item" [class.active]="activeTab() === 'home'">
+    <div class="nav-icon">🏠</div>
+    Home
+  </div>
+  <div class="nav-item" [class.active]="activeTab() === 'sell'">
+    <div class="nav-icon" (click)="goToSell()">🏷️</div>
+    Vender
+  </div>
+  <div class="nav-item" [class.active]="activeTab() === 'fav'">
+    <div class="nav-icon">❤️</div>
+    Favoritos
+  </div>
+  <div class="nav-item" [class.active]="activeTab() === 'cart'">
+    <div class="nav-icon">🛒</div>
+    Carrito
+  </div>
+  <div class="nav-item" [class.active]="activeTab() === 'profile'">
+    <div class="nav-icon">👤</div>
+    Perfil
+  </div>
+  <div class="nav-item" [class.active]="activeTab() === 'profile'"
+    (click)="logout()">
+    <div class="nav-icon">🚶</div>
+    Cerrar sesión
+  </div>
+</div>

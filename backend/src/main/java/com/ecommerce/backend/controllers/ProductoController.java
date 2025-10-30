@@ -1,68 +1,77 @@
 package com.ecommerce.backend.controllers;
 
-import java.util.List;
-import java.util.Optional;
+import com.ecommerce.backend.entities.Producto;
+import com.ecommerce.backend.services.ProductoServiceImplement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.ecommerce.backend.entities.Producto;
-import com.ecommerce.backend.services.ProductoServiceImplement;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/producto")
 public class ProductoController {
-    
+
     @Autowired
-    ProductoServiceImplement productoServiceImplement;
+    private ProductoServiceImplement productoServiceImplement;
 
-    @PostMapping
-    public ResponseEntity<Producto> saveProducto(@RequestBody Producto producto){
-        try {
-            Producto saveProducto = productoServiceImplement.saveProducto(producto);
-            return new ResponseEntity<>(saveProducto, HttpStatus.OK);
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> saveProducto(@RequestBody @Valid Producto producto, BindingResult br) {
+        if (br.hasErrors()) {
+            var errores = br.getFieldErrors().stream()
+                    .map(e -> Map.of("field", e.getField(), "message", e.getDefaultMessage()))
+                    .toList();
+            return ResponseEntity.badRequest().body(errores);
         }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        var saved = productoServiceImplement.saveProducto(producto); 
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @PutMapping
-    public ResponseEntity<Producto> updateProducto(@RequestBody Producto producto){
-        try {
-            if(producto.getId() == null || productoServiceImplement.getProductoById(producto.getId()).isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            Producto saveProducto = productoServiceImplement.updateProducto(producto);
-            return new ResponseEntity<>(saveProducto, HttpStatus.OK);
+    @PutMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> updateProducto(@RequestBody @Valid Producto producto, BindingResult br) {
+        if (br.hasErrors()) {
+            var errores = br.getFieldErrors().stream()
+                    .map(e -> Map.of("field", e.getField(), "message", e.getDefaultMessage()))
+                    .toList();
+            return ResponseEntity.badRequest().body(errores);
         }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (producto.getId() == null || productoServiceImplement.getProductoById(producto.getId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        var updated = productoServiceImplement.updateProducto(producto);
+        return ResponseEntity.ok(updated);
     }
 
-    @GetMapping
+    @GetMapping(produces = "application/json")
     public ResponseEntity<List<Producto>> getAllProductos() {
-        return new ResponseEntity<>(productoServiceImplement.getProductos(),HttpStatus.OK);
+        return ResponseEntity.ok(productoServiceImplement.getProductos());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> getProductoById(@PathVariable Long id){
+    @GetMapping(value = "/{id}", produces = "application/json")
+    public ResponseEntity<Producto> getProductoById(@PathVariable Long id) {
         Optional<Producto> producto = productoServiceImplement.getProductoById(id);
-        if (producto.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(producto.get(), HttpStatus.OK);
+        return producto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
         Optional<Producto> producto = productoServiceImplement.getProductoById(id);
-        if (producto.isPresent()){
+        if (producto.isPresent()) {
             productoServiceImplement.deleteProducto(producto.get().getId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.ok().build();
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
+    @GetMapping("/_count")
+    public long count() {
+        return productoServiceImplement.getProductos().size();
+    }
 }

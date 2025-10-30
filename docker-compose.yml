@@ -2,10 +2,8 @@ services:
   db:
     image: postgres:16
     container_name: ecommerce-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ecommerce_local
+    env_file:
+      - .env.dev
     ports:
       - "5433:5432"
     volumes:
@@ -14,18 +12,18 @@ services:
   backend:
     build: ./backend
     container_name: ecommerce-backend
+    env_file:
+      - .env.dev
     ports:
       - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ecommerce_local
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - db
 
   frontend:
     build: ./frontend/ecommerce-frontend
     container_name: ecommerce-frontend
+    env_file:
+      - .env.dev
     ports:
       - "4200:80"
     depends_on:
