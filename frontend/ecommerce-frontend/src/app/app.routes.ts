@@ -4,21 +4,21 @@ import { AuthGuard } from '@auth0/auth0-angular';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {
+    path: 'login',
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+  },
+  {
     path: 'home',
-    loadComponent: () => import('./pages/productos/productos').then(m => m.Productos)
+    loadComponent: () => import('./pages/productos/productos').then(m => m.Productos),
+    canActivate: [AuthGuard]
   },
   {
     path: 'createProduct',
     loadComponent: () => import('./pages/sell-products/sell-products').then(m => m.SellProducts),
-  },
-  {
-    path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
   },
   {
     path: 'callback',

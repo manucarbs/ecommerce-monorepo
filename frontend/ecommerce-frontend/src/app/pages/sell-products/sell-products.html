@@ -76,8 +76,6 @@
         <select id="estado" formControlName="estado">
           <option value="nuevo">Nuevo</option>
           <option value="usado">Usado</option>
-          <option value="aceptable">Aceptable</option>
-          <option value="reacondicionado">Reacondicionado</option>
         </select>
         <div class="invalid" *ngIf="f['estado']?.invalid && (f['estado']?.dirty || f['estado']?.touched)">
           El estado es obligatorio.

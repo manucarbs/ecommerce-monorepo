@@ -1,9 +1,10 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ProductoService } from '../../services/productoService';
 import { Producto } from '../../interface/IProducto';
 import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-sell-products',
@@ -27,7 +28,7 @@ export class SellProducts implements OnInit {
   form!: FormGroup; 
 
 
-  mostrarNuevaCategoria = computed(() => this.form?.get('categoria')?.value === this.OTRA);
+  mostrarNuevaCategoria = signal<boolean>(false);
 
   constructor(
     private readonly fb: FormBuilder,
@@ -62,6 +63,7 @@ export class SellProducts implements OnInit {
     this.form.get('categoria')?.valueChanges.subscribe(val => {
       const nc = this.form.get('nuevaCategoria');
       if (val === this.OTRA) {
+        this.mostrarNuevaCategoria.set(true);
         nc?.addValidators([Validators.required, Validators.minLength(3), Validators.maxLength(60)]);
       } else {
         nc?.clearValidators();
