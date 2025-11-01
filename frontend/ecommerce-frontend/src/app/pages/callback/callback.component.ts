@@ -56,7 +56,7 @@ export class CallbackComponent implements OnInit {
     this.auth.isAuthenticated$.subscribe(isAuth => {
       if (isAuth) {
         setTimeout(() => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/home']);
         }, 1000);
       }
     });
