@@ -1,8 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { ProductoService } from '../../services/productoService';
-import { Producto } from '../../interface/IProducto';
+import { ProductoService } from '../../services/producto.service';
+import { Producto, ProductoCreate } from '../../interface/IProducto';
 import { Router } from '@angular/router';
 
 
@@ -45,13 +45,14 @@ export class SellProducts implements OnInit {
       nuevaCategoria: [''],
       estado: ['nuevo', [Validators.required]],
       precio: [null, [Validators.required, Validators.min(0.01)]],
+      stock: [1, [Validators.min(0)]],
       imagenUrl: ['', [
         Validators.pattern(/^$|^(https?:\/\/)[\w\-._~:/?#[\]@!$&'()*+,;=%]+$/i)
       ]]
     });
 
    
-    this.productoSrv.getProductos().subscribe({
+    this.productoSrv.getAll().subscribe({
       next: (list) => {
         const uniq = this.buildCategories(list);
         this.categorias.set(uniq);
@@ -74,8 +75,12 @@ export class SellProducts implements OnInit {
   }
 
   private normalize(txt: string): string {
-    return (txt || '').toString().trim().toLowerCase()
-      .normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    return (txt || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
   }
 
   private buildCategories(list: Producto[]): string[] {
@@ -110,19 +115,22 @@ export class SellProducts implements OnInit {
       return;
     }
 
-    const payload: Producto = {
-      titulo: this.form.value.titulo.trim(),
+    const payload: ProductoCreate = {
+      titulo: (this.form.value.titulo || '').toString().trim(),
       categoria: this.getCategoriaFinal(),
-      estado: this.form.value.estado,
-      descripcion: this.form.value.descripcion.trim(),
-      precio: Number(this.form.value.precio)
+      estado: (this.form.value.estado || '').toString(),
+      descripcion: (this.form.value.descripcion ?? '').toString(),
+      precio: Number(this.form.value.precio),
+      stock: Number(this.form.value.stock ?? 1),
+      imagenUrl: (this.form.value.imagenUrl ?? '').toString()
     };
 
     this.enviando = true;
-    this.productoSrv.createProducto(payload).subscribe({
+    this.productoSrv.create(payload).subscribe({
       next: () => {
         this.okMsg = 'Producto creado con éxito.';
         this.enviando = false;
+        
         this.form.reset({
           titulo: '',
           descripcion: '',
@@ -130,14 +138,16 @@ export class SellProducts implements OnInit {
           nuevaCategoria: '',
           estado: 'nuevo',
           precio: null,
+          stock: 1,
           imagenUrl: ''
         });
-        this.productoSrv.getProductos().subscribe({
+        
+        this.productoSrv.getAll().subscribe({
           next: (list) => this.categorias.set(this.buildCategories(list)),
           error: () => {}
         });
       },
-      error: (e) => {
+      error: (e: any) => {
         console.error(e);
         this.errorMsg = 'No se pudo crear el producto.';
         this.enviando = false;

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductoService } from '../../services/productoService';
+import { ProductoService } from '../../services/producto.service';
 import { Producto } from '../../interface/IProducto';
 import { ProductCardComponent } from "../../components/product-card/product-card";
 import { Router } from '@angular/router';
@@ -42,8 +42,8 @@ export class Productos implements OnInit {
     this.cargando.set(true);
     this.errorMsg.set('');
 
-    this.productoSrv.getProductos().subscribe({
-      next: (data) => {
+    this.productoSrv.getAll().subscribe({
+      next: (data: any) => {
         const list = data ?? [];
 
        
@@ -61,7 +61,7 @@ export class Productos implements OnInit {
 
         this.cargando.set(false);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error(err);
         this.errorMsg.set('No se pudieron cargar los productos.');
         this.cargando.set(false);
@@ -111,7 +111,7 @@ export class Productos implements OnInit {
       const q = this.normalize(term);
       list = list.filter(p =>
         this.normalize(p.titulo).includes(q) ||
-        this.normalize(p.descripcion).includes(q) ||
+        this.normalize(p.descripcion ?? '').includes(q) ||
         this.normalize(p.categoria).includes(q)
       );
     }

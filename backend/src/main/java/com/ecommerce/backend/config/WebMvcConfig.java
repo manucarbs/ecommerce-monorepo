@@ -18,7 +18,6 @@ public class WebMvcConfig {
             .allowedOrigins("http://localhost:4200")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
-            // .allowCredentials(true) // habilítalo solo si usas cookies/sesión
             .maxAge(3600);
       }
     };

@@ -2,16 +2,17 @@ package com.ecommerce.backend.services;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ecommerce.backend.entities.Producto;
 import com.ecommerce.backend.repositories.ProductoRepository;
 
-@Service
-public class ProductoServiceImplement implements ProductoService{
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    ProductoRepository productoRepository;
+@Service
+@RequiredArgsConstructor
+public class ProductoServiceImplement implements ProductoService {
+
+    private final ProductoRepository productoRepository;
 
     @Override
     public Producto saveProducto(Producto producto) {
@@ -37,5 +38,9 @@ public class ProductoServiceImplement implements ProductoService{
     public void deleteProducto(Long id) {
         productoRepository.deleteById(id);
     }
-    
+
+    @Override
+    public List<Producto> findByOwnerId(Long ownerId) {
+        return productoRepository.findByOwner_Id(ownerId);
+    }
 }

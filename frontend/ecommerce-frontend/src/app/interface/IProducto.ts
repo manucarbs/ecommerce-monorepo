@@ -1,9 +1,21 @@
 export interface Producto {
-  id?: number;
+  id: number;
   titulo: string;
-  categoria: string;
-  estado: string;
-  descripcion: string;
+  estado: string;           // "nuevo" | "usado"
+  descripcion?: string;
   precio: number;
+  stock: number;
   imagenUrl?: string;
+  categoria: string;
+  owner?: { id: number } | null;
+}
+
+export interface ProductoCreate {
+  titulo: string;
+  estado: string;
+  descripcion?: string;
+  precio: number;
+  stock?: number;
+  imagenUrl?: string;
+  categoria: string;
 }
