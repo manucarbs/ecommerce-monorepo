@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    container_name: ecommerce-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${NEON_HOST}:5432/${NEON_DB}?sslmode=${NEON_SSLMODE}&channelBinding=${NEON_CHANNELBINDING}
+      SPRING_DATASOURCE_USERNAME: ${NEON_USER}
+      SPRING_DATASOURCE_PASSWORD: ${NEON_PASSWORD}
+
+  frontend:
+    build: ./frontend/ecommerce-frontend
+    container_name: ecommerce-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+      
+      ##Este docker compose será para producción

@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
-import { AuthService } from '@auth0/auth0-angular';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-root',
-  template: '', // nada visible
+  imports: [RouterOutlet],
+  template: `<router-outlet />`,
 })
 export class App {
-  constructor(private auth: AuthService) {
-    this.auth.loginWithRedirect(); // redirige inmediatamente al login
-  }
+  // NO llamar loginWithRedirect aquí
 }
