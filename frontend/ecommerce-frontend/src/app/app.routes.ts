@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@auth0/auth0-angular';
+import { ProvisionGuard } from './guards/provision.guard';
 
 export const routes: Routes = [
   {
@@ -14,7 +15,7 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./pages/productos/productos').then(m => m.Productos),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, ProvisionGuard]
   },
   {
     path: 'createProduct',

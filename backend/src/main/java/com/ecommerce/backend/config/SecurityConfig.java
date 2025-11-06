@@ -43,10 +43,10 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health", "/api/public/**").permitAll()
-                        .anyRequest().authenticated())
+                    .requestMatchers("/health", "/api/public/**").permitAll()
+                    .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
-                        .jwtAuthenticationConverter(jwtAuthConverter())));
+                    .jwtAuthenticationConverter(jwtAuthConverter())));
 
         return http.build();
     }
@@ -62,13 +62,20 @@ public class SecurityConfig {
 
     @Bean
     Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthConverter() {
-        return new JwtAuthConverter(); // tu clase
+        return new JwtAuthConverter();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:4200"));
+        
+        for(String o : allowedOrigins.split(",")) {
+            String origin = o.trim();
+            if (!origin.isBlank()) {
+                cfg.addAllowedOriginPattern(origin);
+            }
+        }
+        
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         cfg.setAllowCredentials(true);

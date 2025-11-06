@@ -25,82 +25,25 @@ import { Router } from '@angular/router';
         </div>
       } @else {
         <div class="guest">
-          <h1>Bienvenido a Mi Aplicación</h1>
-          <p>Por favor inicia sesión para continuar</p>
+          <h1>Ecommerce</h1>
+          <p>Inicia sesión para continuar</p>
           <button (click)="login()" class="btn-primary">Iniciar Sesión con Auth0</button>
         </div>
       }
     </div>
   `,
   styles: [`
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin: 20px 0;
-    }
-
-    .user-info {
-      background: #f5f5f5;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 20px 0;
-    }
-
-    .user-info p {
-      margin: 10px 0;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: all 0.3s;
-    }
-
-    .btn-primary {
-      background: #0066cc;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #0052a3;
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background: #545b62;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .guest p {
-      color: #666;
-      margin-bottom: 30px;
-    }
+    .container { max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+    .avatar { width: 80px; height: 80px; border-radius: 50%; margin: 20px 0; }
+    .user-info { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    button { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: all 0.3s; }
+    .btn-primary { background: #0066cc; color: white; }
+    .btn-primary:hover { background: #0052a3; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #545b62; }
+    h1 { color: #333; margin-bottom: 20px; }
+    .guest p { color: #666; margin-bottom: 30px; }
   `]
 })
 export class HomeComponent {
@@ -108,18 +51,15 @@ export class HomeComponent {
   router = inject(Router);
 
   login() {
-    this.auth.loginWithRedirect();
+    console.debug('[HOME] login()');
+    this.auth.loginWithRedirect({ appState: { target: '/home' } });
   }
-
   logout() {
-    this.auth.logout({
-      logoutParams: {
-        returnTo: window.location.origin
-      }
-    });
+    console.debug('[HOME] logout()');
+    this.auth.logout({ logoutParams: { returnTo: window.location.origin } });
   }
-
   goToDashboard() {
-    this.router.navigate(['/home']);
+    console.debug('[HOME] goToDashboard()');
+    this.router.navigateByUrl('/home');
   }
 }
