@@ -1,11 +1,13 @@
 <div id="home-screen" class="app-screen">
-  <div class="top-header">
-    <div class="logo-text">E-COMMERCE</div>
-  </div>
+  <!-- Header -->
+  <header class="top-header">
+    <h1 class="logo-text">E-COMMERCE</h1>
+  </header>
 
   <!-- Buscador -->
   <section class="search-container">
     <input
+      type="search"
       class="search-bar"
       [placeholder]="searchPlaceholder"
       [value]="searchTerm()"
@@ -14,98 +16,146 @@
     />
   </section>
 
-  <!-- Contenido desplazable -->
+  <!-- Contenido principal desplazable -->
   <main class="main-content">
-    <!-- Categorías dinámicas -->
-    <h2 class="section-title">⭐ Categorías</h2>
-
-    <div class="category-grid" role="list">
-      <!-- Botón "Todas" -->
-      <button
-        class="category-item"
-        role="listitem"
-        type="button"
-        aria-label="Todas las categorías"
-        (click)="selectCategory(null)"
-        [class.active]="selectedCategory() === null"
-      >
-        <div class="category-circle">T</div>
-        <span>Todas</span>
-      </button>
-
-      <!-- Categorías desde API -->
-      @for (c of categories(); track c) {
+    <!-- Sección de Categorías -->
+    <section class="categories-section">
+      <h2 class="section-title">⭐ Categorías</h2>
+      
+      <div class="category-grid" role="list">
+        <!-- Botón "Todas" -->
         <button
           class="category-item"
           role="listitem"
           type="button"
-          aria-label="Categoría {{ c }}"
-          (click)="selectCategory(c)"
-          [class.active]="selectedCategory() === c"
+          aria-label="Todas las categorías"
+          (click)="selectCategory(null)"
+          [class.active]="selectedCategory() === null"
         >
-          <div class="category-circle">{{ c[0]?.toUpperCase() }}</div>
-          <span>{{ c }}</span>
+          <div class="category-circle">T</div>
+          <span>Todas</span>
         </button>
-      }
-    </div>
 
-
-    <h2 class="section-title">✨ Últimas Novedades</h2>
-
-    @if (cargando()) {
-      <div class="state">Cargando…</div>
-    } @else if (errorMsg()) {
-      <div class="state error">{{ errorMsg() }}</div>
-    } @else {
-      <div class="product-grid">
-        @if (filteredProducts().length > 0) {
-          @for (p of filteredProducts(); track p.id) {
-            <app-product-card
-              [imageSrc]="getImagen(p)"
-              [imageAlt]="p.titulo || ''"
-              [title]="p.titulo || ''"
-              [description]="p.descripcion || ''"
-              [price]="p.precio || ''"
-              currency="USD"
-              [category]="p.categoria || ''"
-              (cardClick)="openProduct(p)"
-            >
-            </app-product-card>
-          }
-        } @else {
-          <div class="state">Producto no fue encontrado.</div>
+        <!-- Categorías desde API -->
+        @for (c of categories(); track c) {
+          <button
+            class="category-item"
+            role="listitem"
+            type="button"
+            [attr.aria-label]="'Categoría ' + c"
+            (click)="selectCategory(c)"
+            [class.active]="selectedCategory() === c"
+          >
+            <div class="category-circle">{{ c[0]?.toUpperCase() }}</div>
+            <span>{{ c }}</span>
+          </button>
         }
       </div>
-    }
+    </section>
 
+    <!-- Sección de Productos -->
+    <section class="products-section">
+      <h2 class="section-title">✨ Últimas Novedades</h2>
+
+      <!-- Estados de carga -->
+      @if (cargando()) {
+        <div class="state" role="status" aria-live="polite">
+          <span>Cargando productos...</span>
+        </div>
+      } @else if (errorMsg()) {
+        <div class="state error" role="alert">
+          {{ errorMsg() }}
+        </div>
+      } @else {
+        <!-- Grid de productos -->
+        <div class="product-grid">
+          @if (filteredProducts().length > 0) {
+            @for (p of filteredProducts(); track p.id) {
+              <app-product-card
+                [imageSrc]="getImagen(p)"
+                [imageAlt]="p.titulo || 'Producto sin título'"
+                [title]="p.titulo || 'Sin título'"
+                [description]="p.descripcion || ''"
+                [price]="p.precio || '0'"
+                currency="USD"
+                [category]="p.categoria || ''"
+                (cardClick)="openProduct(p)"
+              />
+            }
+          } @else {
+            <div class="state">
+              No se encontraron productos para tu búsqueda.
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Espaciador para scroll -->
     <div class="spacer"></div>
   </main>
-</div>
 
-<div class="nav-bar">
-  <div class="nav-item" [class.active]="activeTab() === 'home'">
-    <div class="nav-icon">🏠</div>
-    Home
-  </div>
-  <div class="nav-item" [class.active]="activeTab() === 'sell'">
-    <div class="nav-icon" (click)="goToSell()">🏷️</div>
-    Vender
-  </div>
-  <div class="nav-item" [class.active]="activeTab() === 'fav'">
-    <div class="nav-icon">❤️</div>
-    Favoritos
-  </div>
-  <div class="nav-item" [class.active]="activeTab() === 'cart'">
-    <div class="nav-icon">🛒</div>
-    Carrito
-  </div>
-  <div class="nav-item" [class.active]="activeTab() === 'profile'">
-    <div class="nav-icon">👤</div>
-    Perfil
-  </div>
-  <div class="nav-item" [class.active]="activeTab() === 'profile'"
-    (click)="logout()">
-    <div class="nav-icon">🚶</div>
-    Cerrar sesión
-  </div>
+  <!-- Barra de navegación inferior -->
+  <nav class="nav-bar" role="navigation" aria-label="Navegación principal">
+    <button 
+      class="nav-item" 
+      type="button"
+      [class.active]="activeTab() === 'home'"
+      aria-label="Ir a inicio"
+    >
+      <div class="nav-icon" aria-hidden="true">🏠</div>
+      <span>Home</span>
+    </button>
+
+    <button 
+      class="nav-item" 
+      type="button"
+      [class.active]="activeTab() === 'sell'"
+      (click)="goToSell()"
+      aria-label="Vender productos"
+    >
+      <div class="nav-icon" aria-hidden="true">🏷️</div>
+      <span>Vender</span>
+    </button>
+
+    <button 
+      class="nav-item" 
+      type="button"
+      [class.active]="activeTab() === 'fav'"
+      aria-label="Ver favoritos"
+    >
+      <div class="nav-icon" aria-hidden="true">❤️</div>
+      <span>Favoritos</span>
+    </button>
+
+    <button 
+      class="nav-item" 
+      type="button"
+      [class.active]="activeTab() === 'cart'"
+      aria-label="Ver carrito de compras"
+    >
+      <div class="nav-icon" aria-hidden="true">🛒</div>
+      <span>Carrito</span>
+    </button>
+
+    <button 
+      class="nav-item" 
+      type="button"
+      [class.active]="activeTab() === 'profile'"
+      aria-label="Ver perfil"
+    >
+      <div class="nav-icon" aria-hidden="true">👤</div>
+      <span>Perfil</span>
+    </button>
+
+    <button 
+      class="nav-item" 
+      type="button"
+      (click)="logout()"
+      aria-label="Cerrar sesión"
+    >
+      <div class="nav-icon" aria-hidden="true">🚪</div>
+      <span>Salir</span>
+    </button>
+  </nav>
 </div>
