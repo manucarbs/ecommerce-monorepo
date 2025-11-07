@@ -34,7 +34,7 @@ Este repositorio contiene la estructura inicial del proyecto **Ecommerce ADS2**.
 
 2. Desscargar la carpeta 'environments' compartida previamente mediante 'CryptPad' y copiarla dentro de:
    ```bash
-   ecommerce-monorepo/frontend/ecommerce_frontend/src/
+   ecommerce-monorepo/frontend/ecommerce-frontend/src
 
 3. Descargar archivo '.env' y '.env.dev' y ubicarlos en la carpeta raíz.
 
