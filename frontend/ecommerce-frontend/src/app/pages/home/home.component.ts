@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
               <polyline points="10 17 15 12 10 7"></polyline>
               <line x1="15" y1="12" x2="3" y2="12"></line>
             </svg>
-            Iniciar Sesión con Auth0
+            Iniciar Sesión
           </button>
           <div class="decorative-dots">
             <span class="dot"></span>
