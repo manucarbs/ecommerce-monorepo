@@ -1,0 +1,427 @@
+/* ==================== VARIABLES ==================== */
+:host {
+  --bg: #ffffff;
+  --bg-soft: #f5f5f5;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --lavender: #6667ab;   
+  --primary: #134842;    
+  --divider: #e5e7eb;
+  --shadow-sm: 0 1px 6px rgba(102, 103, 171, 0.12);
+  --shadow-md: 0 3px 10px rgba(102, 103, 171, 0.18);
+  --shadow-lg: 0 6px 24px rgba(102, 103, 171, 0.22);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+  background: #eee;
+}
+
+/* ==================== LAYOUT PRINCIPAL ==================== */
+.app-screen {
+  background: var(--bg);
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==================== HEADER ==================== */
+.top-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+  flex-grow: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.logo-text {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* ==================== BUSCADOR ==================== */
+.search-container {
+  padding: 12px 18px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 14px 20px;
+  background: #fff;
+  border: 1.5px solid var(--lavender);
+  border-radius: 22px;
+  color: var(--text);
+  font-size: 1.05rem;
+  outline: none;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(19,72,66,0.12);
+}
+
+.search-bar::placeholder {
+  color: var(--lavender);
+  opacity: 0.7;
+}
+
+/* ==================== CONTENIDO PRINCIPAL ==================== */
+.main-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 18px;
+  padding-bottom: 110px;
+  color: var(--text);
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lavender) transparent;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: var(--lavender);
+  border-radius: 3px;
+}
+
+/* ==================== SECCIONES ==================== */
+.categories-section,
+.products-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 18px;
+  color: #420d4b;
+  letter-spacing: 0.3px;
+}
+
+/* ==================== CATEGORÍAS ==================== */
+.category-grid {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lavender) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.category-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-grid::-webkit-scrollbar-thumb {
+  background: var(--lavender);
+  border-radius: 3px;
+}
+
+.category-item {
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-size: 0.95rem;
+  min-width: 90px;
+  cursor: pointer;
+  color: #420d4b;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s ease;
+  padding: 4px;
+}
+
+.category-item:hover {
+  transform: translateY(-3px);
+}
+
+.category-item:active {
+  transform: translateY(-1px);
+}
+
+.category-circle {
+  width: 74px;
+  height: 74px;
+  background: var(--lavender);
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 700;
+  transition: opacity 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.category-item:hover .category-circle {
+  opacity: 0.9;
+  box-shadow: var(--shadow-md);
+  transform: scale(1.08) rotate(2deg);
+}
+
+.category-item.active .category-circle {
+  opacity: 0.95;
+  outline: 3px solid rgba(102, 103, 171, 0.4);
+  outline-offset: 3px;
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #6667ab 0%, #134842 100%);
+}
+
+.category-item.active span {
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* ==================== PRODUCTOS ==================== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.product-grid > * {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.product-grid > *:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.spacer {
+  height: 24px;
+}
+
+/* ==================== ESTADOS ==================== */
+.state {
+  color: var(--muted);
+  margin: 20px 0;
+  padding: 16px;
+  text-align: center;
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  border: 1px solid var(--divider);
+}
+
+.state.error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* ==================== NAVEGACIÓN INFERIOR (FIJA) ==================== */
+.nav-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  padding: 10px 8px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--divider);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.nav-item {
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #420d4b;
+  cursor: pointer;
+  padding: 8px 4px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 60px;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background: rgba(102, 103, 171, 0.08);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 2px 6px rgba(19,72,66,0.15);
+}
+
+.nav-item:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.nav-item.active {
+  color: var(--primary);
+  font-weight: 800;
+  background: rgba(19, 72, 66, 0.12);
+  box-shadow: inset 0 2px 4px rgba(19, 72, 66, 0.1);
+}
+
+.nav-icon {
+  font-size: 1.45rem;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.15);
+}
+
+/* ==================== MEDIA QUERIES ==================== */
+
+/* Tablets */
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+  }
+
+  .search-bar {
+    font-size: 1.08rem;
+    padding: 14px 20px;
+  }
+
+  .nav-item {
+    font-size: 0.78rem;
+    min-height: 64px;
+  }
+
+  .section-title {
+    font-size: 1.28rem;
+  }
+
+  .category-circle {
+    width: 78px;
+    height: 78px;
+    font-size: 1.7rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .section-title {
+    font-size: 1.38rem;
+    margin-bottom: 22px;
+  }
+
+  .main-content {
+    padding: 26px 22px;
+  }
+
+  .category-grid {
+    gap: 22px;
+  }
+
+  .nav-bar {
+    gap: 8px;
+    padding: 12px 12px;
+  }
+
+  .nav-item {
+    font-size: 0.82rem;
+    min-height: 66px;
+    padding: 10px 6px;
+  }
+
+  .top-header {
+    padding: 18px 22px;
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 22px;
+  }
+
+  .main-content {
+    padding: 30px 26px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 375px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .category-circle {
+    width: 66px;
+    height: 66px;
+    font-size: 1.45rem;
+  }
+
+  .nav-item {
+    font-size: 0.68rem;
+    padding: 6px 2px;
+    min-height: 58px;
+  }
+
+  .nav-icon {
+    font-size: 1.3rem;
+  }
+}
