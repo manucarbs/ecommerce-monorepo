@@ -40,7 +40,7 @@ Este repositorio contiene la estructura inicial del proyecto **Ecommerce ADS2**.
 
 4. Construir y levantar los servicios locales (backend, frontend y base de datos):
    ```bash
-   docker-compose up --build
+   docker compose up --build
 
 5. Construir y levantar los servicios locales (backend, frontend) con base de datos remota en Neon.
    ```bash
