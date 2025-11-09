@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +22,7 @@ public class ProductoCreateDto {
     private String categoria;
 
     @NotBlank
-    @Size(max = 20) // "nuevo" | "usado"
+    @Size(max = 20)
     private String estado;
 
     @Size(max = 2000)
@@ -32,6 +35,10 @@ public class ProductoCreateDto {
     @PositiveOrZero
     private Integer stock = 1;
 
-    @Size(max = 2048)
+    // 🆕 Soporta múltiples imágenes
+    @Size(max = 5, message = "Máximo 5 imágenes por producto")
+    private List<@Size(max = 2048) String> imagenesUrl = new ArrayList<>();
+
+    // ⚠️ RETROCOMPATIBILIDAD: Mantener por si el frontend antiguo envía imagenUrl
     private String imagenUrl;
 }
