@@ -1,0 +1,144 @@
+<div class="screen">
+  <!-- Header -->
+  <header class="header">
+    <button class="btn-back" (click)="volver()">← Volver</button>
+    <h1 class="header-title">DETALLE</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando producto...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorMsg()) {
+    <div class="error-container">
+      <p>❌ {{ errorMsg() }}</p>
+      <button class="btn-secondary" (click)="volver()">Volver al inicio</button>
+    </div>
+  }
+
+  <!-- Contenido del Producto -->
+  @if (!cargando() && producto()) {
+    <main class="content">
+      <div class="producto-container">
+        
+        <!-- Galería de Imágenes -->
+        <section class="galeria-section">
+          <!-- Imagen Principal -->
+          <div class="imagen-principal" (click)="abrirGaleria(imagenActual())">
+            <img [src]="imagenes[imagenActual()]" [alt]="producto()!.titulo">
+            <div class="zoom-hint">🔍 Click para ampliar</div>
+            <div class="badge-estado" [class.usado]="producto()!.estado === 'usado'">
+              {{ producto()!.estado === 'nuevo' ? '✨ Nuevo' : '🔄 Usado' }}
+            </div>
+          </div>
+
+          <!-- Miniaturas -->
+          @if (imagenes.length > 1) {
+            <div class="miniaturas">
+              @for (img of imagenes; track $index) {
+                <button 
+                  class="miniatura"
+                  [class.active]="imagenActual() === $index"
+                  (click)="seleccionarImagen($index)"
+                >
+                  <img [src]="img" [alt]="'Imagen ' + ($index + 1)">
+                </button>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Información del Producto -->
+        <section class="info-section">
+          <!-- Precio y Título -->
+          <div class="precio-container">
+            <h1 class="titulo">{{ producto()!.titulo }}</h1>
+            <p class="precio">{{ formatearPrecio(producto()!.precio) }}</p>
+          </div>
+
+          <!-- Categoría y Stock -->
+          <div class="meta-info">
+            <span class="badge-categoria">📦 {{ producto()!.categoria }}</span>
+            <span class="badge-stock" [class.agotado]="producto()!.stock === 0">
+              {{ producto()!.stock > 0 ? '✅ Disponible (' + producto()!.stock + ')' : '❌ Agotado' }}
+            </span>
+          </div>
+
+          <!-- Descripción -->
+          <div class="descripcion-container">
+            <h3>Descripción</h3>
+            <p>{{ producto()!.descripcion }}</p>
+          </div>
+
+          <!-- Información Adicional -->
+          <div class="detalles">
+            <h3>Detalles</h3>
+            <div class="detalle-item">
+              <span class="label">Publicado:</span>
+              <span class="value">{{ formatearFecha(producto()!.creadoEn) }}</span>
+            </div>
+            <div class="detalle-item">
+              <span class="label">Última actualización:</span>
+              <span class="value">{{ formatearFecha(producto()!.actualizadoEn) }}</span>
+            </div>
+            <div class="detalle-item">
+              <span class="label">ID del producto:</span>
+              <span class="value">#{{ producto()!.id }}</span>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="acciones">
+            @if (esElDueno) {
+              <!-- Si es el dueño -->
+              <button class="btn-editar" (click)="editarProducto()">
+                ✏️ Editar Producto
+              </button>
+              <button 
+                class="btn-eliminar" 
+                (click)="eliminarProducto()"
+                [disabled]="eliminando()"
+              >
+                {{ eliminando() ? '⏳ Eliminando...' : '🗑️ Eliminar Producto' }}
+              </button>
+            } @else {
+              <!-- Si NO es el dueño -->
+              <button class="btn-contactar" (click)="contactarVendedor()">
+                💬 Contactar Vendedor
+              </button>
+            }
+          </div>
+        </section>
+      </div>
+    </main>
+  }
+
+  <!-- Modal de Galería Fullscreen -->
+  @if (mostrarGaleria()) {
+    <div class="galeria-modal" (click)="cerrarGaleria()">
+      <button class="btn-cerrar" (click)="cerrarGaleria()">✕</button>
+      
+      <button class="btn-nav btn-prev" (click)="imagenAnterior($event)">
+        ‹
+      </button>
+      
+      <div class="imagen-fullscreen" (click)="$event.stopPropagation()">
+        <img [src]="imagenes[imagenActual()]" [alt]="producto()!.titulo">
+      </div>
+      
+      <button class="btn-nav btn-next" (click)="imagenSiguiente($event)">
+        ›
+      </button>
+
+      <div class="contador-imagenes">
+        {{ imagenActual() + 1 }} / {{ imagenes.length }}
+      </div>
+    </div>
+  }
+</div>

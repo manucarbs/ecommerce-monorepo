@@ -1,0 +1,134 @@
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 1rem;
+  color: #444;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #0078ff;
+}
+
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 0.8rem;
+}
+
+.imagen-item {
+  position: relative;
+}
+
+.imagen-item img {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.imagen-item button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.imagen-item button:hover {
+  background: #ff0000;
+}
+
+.preview img {
+  border: 2px dashed #0078ff;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+button[type="submit"],
+button[type="button"] {
+  padding: 0.7rem 1.5rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button[type="submit"] {
+  background-color: #0078ff;
+  color: white;
+}
+
+button[type="submit"]:hover {
+  background-color: #005fcb;
+}
+
+button[type="button"] {
+  background-color: #eee;
+}
+
+button[type="button"]:hover {
+  background-color: #ddd;
+}
+
+.error-msg {
+  color: #d32f2f;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.upload-msg {
+  color: #0078ff;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+}

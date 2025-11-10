@@ -42,11 +42,11 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock = 1;
 
-    // ⚠️ MANTENER CAMPO ANTIGUO para retrocompatibilidad
+    //  MANTENER CAMPO ANTIGUO para retrocompatibilidad
     @Column(name = "imagen_url")
     private String imagenUrl;
 
-    // 🆕 NUEVO: Múltiples imágenes (se guarda en tabla separada)
+    // Múltiples imágenes (se guarda en tabla separada)
     @ElementCollection
     @CollectionTable(
         name = "producto_imagenes",
@@ -84,7 +84,7 @@ public class Producto {
             ownerSub = owner.getAuth0Sub();
         }
         
-        // 🔄 Migración automática: Si existe imagenUrl antigua, moverla a imagenesUrl
+        //  Migración automática: Si existe imagenUrl antigua, moverla a imagenesUrl
         if (imagenUrl != null && !imagenUrl.isBlank() && imagenesUrl.isEmpty()) {
             imagenesUrl.add(imagenUrl);
         }
@@ -110,7 +110,7 @@ public class Producto {
         return (owner != null ? owner.getId() : null);
     }
 
-    // 🆕 Obtener imagen principal (la primera)
+    // Obtener imagen principal (la primera)
     @JsonProperty("imagenPrincipal")
     public String getImagenPrincipal() {
         if (imagenesUrl != null && !imagenesUrl.isEmpty()) {

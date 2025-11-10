@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@auth0/auth0-angular';
 import { ProvisionGuard } from './guards/provision.guard';
+import { EditarProductoComponent } from './pages/editar-producto/editar-producto';
 
 export const routes: Routes = [
   {
@@ -20,12 +21,23 @@ export const routes: Routes = [
   {
     path: 'createProduct',
     loadComponent: () => import('./pages/sell-products/sell-products').then(m => m.SellProducts),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'producto/:id',
+    loadComponent: () => import('./pages/producto-detalle/producto-detalle').then(m => m.ProductoDetalle),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'editar-producto/:id',
+    component: EditarProductoComponent
   },
   {
     path: 'callback',
     loadComponent: () => import('./pages/callback/callback.component').then(m => m.CallbackComponent)
   },
-  {path: '**',
+  {
+    path: '**',
     redirectTo: 'home'
   }
 ];
