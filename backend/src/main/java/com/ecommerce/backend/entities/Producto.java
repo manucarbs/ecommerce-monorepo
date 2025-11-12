@@ -1,14 +1,21 @@
 package com.ecommerce.backend.entities;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 @Entity
@@ -40,8 +47,17 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock = 1;
 
-    @Column(name = "imagen_url")
-    private String imagenUrl;
+    // ✅ Campo JSON para almacenar múltiples imágenes en una sola columna
+    @Column(name = "imagenes_json", columnDefinition = "TEXT")
+    private String imagenesJson;
+
+    // Campo transitorio (no se guarda en BD, se usa en memoria)
+    @Transient
+    private List<String> imagenesUrl = new ArrayList<>();
+
+    // ObjectMapper estático para conversiones JSON
+    @Transient
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @NotBlank
     @Column(name = "categoria", nullable = false, length = 80)
@@ -64,6 +80,8 @@ public class Producto {
     @Column(name = "actualizado_en")
     private Instant actualizadoEn;
 
+    // ============ LIFECYCLE HOOKS ============
+
     @PrePersist
     public void prePersist() {
         if (creadoEn == null) creadoEn = Instant.now();
@@ -71,20 +89,82 @@ public class Producto {
         if ((ownerSub == null || ownerSub.isBlank()) && owner != null && owner.getAuth0Sub() != null) {
             ownerSub = owner.getAuth0Sub();
         }
+        convertirImagenesAJson();
     }
 
     @PreUpdate
     public void preUpdate() {
         actualizadoEn = Instant.now();
+        convertirImagenesAJson();
     }
 
- 
+    @PostLoad
+    public void postLoad() {
+        convertirJsonAImagenes();
+    }
+
+    // ============ CONVERSIÓN JSON ↔ LIST ============
+
+    /**
+     * Convierte la lista imagenesUrl a JSON antes de guardar en BD
+     */
+    private void convertirImagenesAJson() {
+        try {
+            if (imagenesUrl != null && !imagenesUrl.isEmpty()) {
+                imagenesJson = objectMapper.writeValueAsString(imagenesUrl);
+                log.debug("📦 Convertido a JSON: {} imágenes", imagenesUrl.size());
+            } else {
+                imagenesJson = "[]";
+            }
+        } catch (JsonProcessingException e) {
+            log.error("❌ Error al convertir imágenes a JSON", e);
+            imagenesJson = "[]";
+        }
+    }
+
+    /**
+     * Convierte el JSON a lista después de cargar de BD
+     */
+    private void convertirJsonAImagenes() {
+        try {
+            if (imagenesJson != null && !imagenesJson.isBlank() && !imagenesJson.equals("[]")) {
+                imagenesUrl = objectMapper.readValue(imagenesJson, new TypeReference<List<String>>() {});
+                log.debug("📂 Cargado desde JSON: {} imágenes", imagenesUrl.size());
+            } else {
+                imagenesUrl = new ArrayList<>();
+            }
+        } catch (JsonProcessingException e) {
+            log.error("❌ Error al parsear JSON de imágenes: {}", imagenesJson, e);
+            imagenesUrl = new ArrayList<>();
+        }
+    }
+
+    // ============ GETTERS/SETTERS PERSONALIZADOS ============
+
+    /**
+     * Getter que asegura que imagenesUrl esté cargado
+     */
+    public List<String> getImagenesUrl() {
+        if (imagenesUrl == null || (imagenesUrl.isEmpty() && imagenesJson != null && !imagenesJson.equals("[]"))) {
+            convertirJsonAImagenes();
+        }
+        return imagenesUrl;
+    }
+
+    /**
+     * Setter que marca para conversión
+     */
+    public void setImagenesUrl(List<String> imagenesUrl) {
+        this.imagenesUrl = imagenesUrl != null ? imagenesUrl : new ArrayList<>();
+    }
+
+    // ============ JSON PROPERTIES ============
+
     @JsonIgnore
     public Usuario getOwner() {
         return owner;
     }
 
-   
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public void setOwner(Usuario owner) {
         this.owner = owner;
@@ -93,5 +173,22 @@ public class Producto {
     @JsonProperty("ownerId")
     public Long getOwnerId() {
         return (owner != null ? owner.getId() : null);
+    }
+
+    /**
+     * Devuelve la primera imagen como imagen principal
+     */
+    @JsonProperty("imagenPrincipal")
+    public String getImagenPrincipal() {
+        List<String> imgs = getImagenesUrl();
+        return (imgs != null && !imgs.isEmpty()) ? imgs.get(0) : null;
+    }
+
+    /**
+     * IMPORTANTE: No exponer imagenesJson en el API
+     */
+    @JsonIgnore
+    public String getImagenesJson() {
+        return imagenesJson;
     }
 }

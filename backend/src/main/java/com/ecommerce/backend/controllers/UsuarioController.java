@@ -106,4 +106,22 @@ public class UsuarioController {
         .body(Map.of("error", "FK_CONSTRAINT", "message", "No se puede eliminar: tiene productos asociados."));
     }
   }
+
+  @PatchMapping("/me/picture")
+  public ResponseEntity<?> updatePicture(
+      @AuthenticationPrincipal Jwt jwt,
+      @RequestBody Map<String, String> body) {
+
+    String pictureUrl = body.get("pictureUrl");
+    if (pictureUrl == null || pictureUrl.isBlank()) {
+      return ResponseEntity.badRequest()
+          .body(Map.of("error", "INVALID_URL", "message", "La URL de la foto es requerida"));
+    }
+
+    Usuario u = usuarioService.ensureFromJwt(jwt);
+    u.setPictureUrl(pictureUrl);
+    Usuario saved = usuarioRepository.save(u);
+
+    return ResponseEntity.ok(saved);
+  }
 }

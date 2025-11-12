@@ -1,9 +1,8 @@
-<!-- Pantalla completa -->
 <div class="screen">
   <!-- Header -->
   <header class="header">
     <button class="icon-btn" type="button" (click)="goHome()" aria-label="Volver">
-      🏠
+      ←
     </button>
     <div class="header-title">PUBLICAR PRODUCTO</div>
     <span class="icon-spacer"></span>
@@ -17,20 +16,43 @@
     <div *ngIf="errorMsg" class="alert error">{{ errorMsg }}</div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <!-- Fotos / Imagen URL -->
+      
+      <!-- 🆕 Fotos / Subir Imágenes -->
       <section class="form-section">
         <h3>Fotos</h3>
-        <label for="imagenUrl">URL de imagen (opcional)</label>
-        <input id="imagenUrl" type="text" formControlName="imagenUrl" placeholder="https://...">
-
-        <div class="invalid" *ngIf="f['imagenUrl']?.invalid && (f['imagenUrl']?.dirty || f['imagenUrl']?.touched)">
-          Debe ser una URL válida con http/https.
-        </div>
-
-        <div class="photo-preview" *ngIf="previewImagen">
-          <img [src]="previewImagen" alt="Vista previa" />
+        <label for="imagenes">Imágenes del Producto *</label>
+        <input 
+          type="file" 
+          id="imagenes"
+          accept="image/jpeg,image/png" 
+          multiple
+          (change)="onFileSelected($event)"
+          class="file-input"
+          [disabled]="enviando"
+        >
+        <p class="help-text">📸 Máximo 5 imágenes • JPG o PNG • 5MB cada una</p>
+        
+        <!-- Previews -->
+        <div class="previews" *ngIf="previewUrls().length > 0">
+          <div class="preview-item" *ngFor="let url of previewUrls(); let i = index">
+            <img [src]="url" [alt]="'Preview ' + (i + 1)">
+            <button 
+              type="button" 
+              (click)="removePreview(i)" 
+              class="btn-remove"
+              [disabled]="enviando"
+            >
+              ✕
+            </button>
+            <span class="badge-principal" *ngIf="i === 0">Principal</span>
+          </div>
         </div>
       </section>
+
+      <!-- Mensaje de progreso -->
+      <div class="progress-message" *ngIf="progresoUpload()">
+        {{ progresoUpload() }}
+      </div>
 
       <!-- Detalles -->
       <section class="form-section">
@@ -93,8 +115,8 @@
 
       <!-- Barra de acción -->
       <div class="action-bar">
-        <button class="cta-button" type="submit" [disabled]="form.invalid || enviando">
-          {{ enviando ? 'Publicando…' : 'PUBLICAR AHORA' }}
+        <button class="cta-button" type="submit" [disabled]="form.invalid || enviando || selectedFiles().length === 0">
+          {{ enviando ? (subiendoImagenes ? 'Subiendo...' : 'Publicando…') : 'PUBLICAR AHORA' }}
         </button>
       </div>
     </form>
