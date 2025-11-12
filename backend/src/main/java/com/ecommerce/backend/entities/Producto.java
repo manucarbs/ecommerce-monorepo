@@ -1,6 +1,8 @@
 package com.ecommerce.backend.entities;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,8 +42,18 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock = 1;
 
+    //  MANTENER CAMPO ANTIGUO para retrocompatibilidad
     @Column(name = "imagen_url")
     private String imagenUrl;
+
+    // Múltiples imágenes (se guarda en tabla separada)
+    @ElementCollection
+    @CollectionTable(
+        name = "producto_imagenes",
+        joinColumns = @JoinColumn(name = "id_producto")
+    )
+    @Column(name = "imagen_url", length = 2048)
+    private List<String> imagenesUrl = new ArrayList<>();
 
     @NotBlank
     @Column(name = "categoria", nullable = false, length = 80)
@@ -71,6 +83,11 @@ public class Producto {
         if ((ownerSub == null || ownerSub.isBlank()) && owner != null && owner.getAuth0Sub() != null) {
             ownerSub = owner.getAuth0Sub();
         }
+        
+        //  Migración automática: Si existe imagenUrl antigua, moverla a imagenesUrl
+        if (imagenUrl != null && !imagenUrl.isBlank() && imagenesUrl.isEmpty()) {
+            imagenesUrl.add(imagenUrl);
+        }
     }
 
     @PreUpdate
@@ -78,13 +95,11 @@ public class Producto {
         actualizadoEn = Instant.now();
     }
 
- 
     @JsonIgnore
     public Usuario getOwner() {
         return owner;
     }
 
-   
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public void setOwner(Usuario owner) {
         this.owner = owner;
@@ -93,5 +108,15 @@ public class Producto {
     @JsonProperty("ownerId")
     public Long getOwnerId() {
         return (owner != null ? owner.getId() : null);
+    }
+
+    // Obtener imagen principal (la primera)
+    @JsonProperty("imagenPrincipal")
+    public String getImagenPrincipal() {
+        if (imagenesUrl != null && !imagenesUrl.isEmpty()) {
+            return imagenesUrl.get(0);
+        }
+        // Fallback: si no hay nuevas, devolver la antigua
+        return imagenUrl;
     }
 }

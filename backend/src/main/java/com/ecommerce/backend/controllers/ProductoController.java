@@ -1,11 +1,11 @@
 package com.ecommerce.backend.controllers;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.BindingResult;
@@ -16,17 +16,22 @@ import com.ecommerce.backend.entities.Producto;
 import com.ecommerce.backend.entities.Usuario;
 import com.ecommerce.backend.repositories.UsuarioRepository;
 import com.ecommerce.backend.services.ProductoService;
+import com.ecommerce.backend.services.FileStorageService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/private/producto")
 public class ProductoController {
 
     private final ProductoService productoService;
-    private final UsuarioRepository usuarioRepository; // solo lectura para resolver dueño
+    private final UsuarioRepository usuarioRepository;
+    private final FileStorageService fileStorageService;
 
     // ---------- READ ----------
     @GetMapping(produces = "application/json")
@@ -42,7 +47,6 @@ public class ProductoController {
             .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    /** Productos del usuario autenticado (sub → Usuario.id → FK) */
     @GetMapping("/mine")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
         String sub = jwt.getClaimAsString("sub");
@@ -88,14 +92,24 @@ public class ProductoController {
         p.setDescripcion(dto.getDescripcion());
         p.setPrecio(dto.getPrecio());
         p.setStock(dto.getStock() == null ? 1 : dto.getStock());
-        p.setImagenUrl(dto.getImagenUrl());
-        p.setOwner(owner);      
-        p.setOwnerSub(sub);     
+        
+        // 🆕 Soportar múltiples imágenes
+        if (dto.getImagenesUrl() != null && !dto.getImagenesUrl().isEmpty()) {
+            p.setImagenesUrl(dto.getImagenesUrl());
+        } else if (dto.getImagenUrl() != null && !dto.getImagenUrl().isBlank()) {
+            // Retrocompatibilidad: si envía imagenUrl (singular)
+            p.getImagenesUrl().add(dto.getImagenUrl());
+        }
+        
+        p.setOwner(owner);
+        p.setOwnerSub(sub);
 
         var saved = productoService.saveProducto(p);
+        log.info("✅ Producto creado con {} imágenes", saved.getImagenesUrl().size());
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    // ---------- UPDATE ----------
     @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> updateProducto(@PathVariable Long id,
                                             @RequestBody @Valid ProductoCreateDto dto,
@@ -135,7 +149,14 @@ public class ProductoController {
         existing.setDescripcion(dto.getDescripcion());
         existing.setPrecio(dto.getPrecio());
         existing.setStock(dto.getStock() == null ? 1 : dto.getStock());
-        existing.setImagenUrl(dto.getImagenUrl());
+        
+        // 🆕 Actualizar imágenes
+        if (dto.getImagenesUrl() != null && !dto.getImagenesUrl().isEmpty()) {
+            existing.setImagenesUrl(dto.getImagenesUrl());
+        } else if (dto.getImagenUrl() != null && !dto.getImagenUrl().isBlank()) {
+            existing.getImagenesUrl().clear();
+            existing.getImagenesUrl().add(dto.getImagenUrl());
+        }
 
         return ResponseEntity.ok(productoService.updateProducto(existing));
     }
@@ -165,7 +186,19 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+        // 🆕 ELIMINAR IMÁGENES DE CLOUDINARY ANTES DE BORRAR EL PRODUCTO
+        try {
+            if (existing.getImagenesUrl() != null && !existing.getImagenesUrl().isEmpty()) {
+                log.info("🗑️ Eliminando {} imágenes de Cloudinary", existing.getImagenesUrl().size());
+                fileStorageService.deleteMultiple(existing.getImagenesUrl());
+            }
+        } catch (Exception e) {
+            log.error("❌ Error al eliminar imágenes de Cloudinary", e);
+            // Continuar con la eliminación del producto aunque falle la eliminación de imágenes
+        }
+
         productoService.deleteProducto(existing.getId());
+        log.info("✅ Producto eliminado: {}", existing.getTitulo());
         return ResponseEntity.ok().build();
     }
 

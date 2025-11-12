@@ -1,0 +1,50 @@
+<div class="container" *ngIf="!cargando(); else cargandoTpl">
+  <h2>🛠️ Editar producto</h2>
+
+  <div *ngIf="errorMsg(); else formTpl" class="error">
+    {{ errorMsg() }}
+  </div>
+
+  <ng-template #formTpl>
+    <form (ngSubmit)="guardarCambios()" *ngIf="producto() as p">
+      <label>Título</label>
+      <input type="text" [(ngModel)]="p.titulo" name="titulo" required />
+
+      <label>Descripción</label>
+      <textarea [(ngModel)]="p.descripcion" name="descripcion" rows="4"></textarea>
+
+      <label>Precio</label>
+      <input type="number" [(ngModel)]="p.precio" name="precio" min="0" required />
+
+      <h3>🖼️ Imágenes actuales</h3>
+      <div class="galeria">
+        <div *ngFor="let img of p.imagenesUrl; let i = index" class="imagen-item">
+          <img [src]="img" alt="Imagen del producto" />
+          <button type="button" (click)="eliminarImagenActual(i)" title="Eliminar">❌</button>
+        </div>
+      </div>
+
+      <label for="nuevas">Agregar nuevas imágenes (máx. 5)</label>
+      <input type="file" id="nuevas" (change)="onFileSelected($event)" multiple accept="image/*" />
+
+      <div class="galeria">
+        <div *ngFor="let preview of previewUrls(); let i = index" class="imagen-item preview">
+          <img [src]="preview" alt="Preview" />
+          <button type="button" (click)="removePreview(i)" title="Quitar">🗑️</button>
+        </div>
+      </div>
+
+      <p *ngIf="errorMsg()" class="error-msg">{{ errorMsg() }}</p>
+      <p *ngIf="progresoUpload()" class="upload-msg">{{ progresoUpload() }}</p>
+
+      <div class="botones">
+        <button type="submit" [disabled]="guardando()">💾 Guardar cambios</button>
+        <button type="button" (click)="cancelar()">↩️ Cancelar</button>
+      </div>
+    </form>
+  </ng-template>
+</div>
+
+<ng-template #cargandoTpl>
+  <div class="loading">Cargando producto...</div>
+</ng-template>
