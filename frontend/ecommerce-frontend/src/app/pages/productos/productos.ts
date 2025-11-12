@@ -120,9 +120,9 @@ export class Productos implements OnInit {
     this.applyFilters(); // recalcular
   }
 
-  openProduct(p: Producto) {
-    alert(`Detalle: ${p.titulo}`);
-  }
+openProduct(p: Producto) {
+  this.router.navigate(['/producto', p.id]);
+}
 
   setTab(tab: string) {
     this.activeTab.set(tab);
