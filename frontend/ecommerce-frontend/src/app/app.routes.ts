@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from '@auth0/auth0-angular';
 import { ProvisionGuard } from './guards/provision.guard';
 import { EditarProductoComponent } from './pages/editar-producto/editar-producto';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 export const routes: Routes = [
   {
@@ -30,7 +31,13 @@ export const routes: Routes = [
   },
   {
     path: 'editar-producto/:id',
-    component: EditarProductoComponent
+    component: EditarProductoComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'callback',

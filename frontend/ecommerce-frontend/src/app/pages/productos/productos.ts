@@ -120,9 +120,9 @@ export class Productos implements OnInit {
     this.applyFilters(); // recalcular
   }
 
-openProduct(p: Producto) {
-  this.router.navigate(['/producto', p.id]);
-}
+  openProduct(p: Producto) {
+    this.router.navigate(['/producto', p.id]);
+  }
 
   setTab(tab: string) {
     this.activeTab.set(tab);
@@ -150,6 +150,12 @@ openProduct(p: Producto) {
   goToSell() {
     this.router.navigate(['/createProduct']);
   }
+
+  // 🆕 Método para ir al perfil/dashboard
+  goToProfile() {
+    this.router.navigate(['/dashboard']);
+  }
+
   logout() {
     this.auth.logout({
       logoutParams: {
