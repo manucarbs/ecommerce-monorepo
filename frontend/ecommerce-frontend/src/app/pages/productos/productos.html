@@ -142,6 +142,7 @@
       class="nav-item" 
       type="button"
       [class.active]="activeTab() === 'profile'"
+      (click)="goToProfile()"
       aria-label="Ver perfil"
     >
       <div class="nav-icon" aria-hidden="true">👤</div>
