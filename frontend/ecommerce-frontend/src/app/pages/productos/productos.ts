@@ -151,6 +151,10 @@ export class Productos implements OnInit {
     this.router.navigate(['/createProduct']);
   }
 
+  goToFav() {
+    this.router.navigate(['/favoritos'])
+  }
+
   // 🆕 Método para ir al perfil/dashboard
   goToProfile() {
     this.router.navigate(['/dashboard']);

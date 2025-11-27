@@ -122,6 +122,7 @@
       class="nav-item" 
       type="button"
       [class.active]="activeTab() === 'fav'"
+      (click)="goToFav()"
       aria-label="Ver favoritos"
     >
       <div class="nav-icon" aria-hidden="true">❤️</div>
