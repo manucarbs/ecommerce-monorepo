@@ -24,6 +24,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sell-products/sell-products').then(m => m.SellProducts),
     canActivate: [AuthGuard]
   },
+
+  {
+    path: 'favoritos',
+    loadComponent: () => import('./pages/favoritos/favoritos.component').then(m => m.FavoritosComponent),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'producto/:id',
     loadComponent: () => import('./pages/producto-detalle/producto-detalle').then(m => m.ProductoDetalle),

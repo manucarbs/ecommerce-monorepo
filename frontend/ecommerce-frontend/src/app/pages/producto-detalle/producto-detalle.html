@@ -3,7 +3,21 @@
   <header class="header">
     <button class="btn-back" (click)="volver()">← Volver</button>
     <h1 class="header-title">DETALLE</h1>
-    <span class="spacer"></span>
+    
+    <!-- Botón de Favorito en Header -->
+    @if (!esElDueno) {
+      <button 
+        class="btn-favorito-header"
+        (click)="toggleFavorito()"
+        [disabled]="toggleandoFavorito()"
+        [class.activo]="esFavorito()"
+        [attr.aria-label]="esFavorito() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+      >
+        {{ esFavorito() ? '❤️' : '🤍' }}
+      </button>
+    } @else {
+      <span class="spacer-small"></span>
+    }
   </header>
 
   <!-- Loading -->
@@ -36,6 +50,13 @@
             <div class="badge-estado" [class.usado]="producto()!.estado === 'usado'">
               {{ producto()!.estado === 'nuevo' ? '✨ Nuevo' : '🔄 Usado' }}
             </div>
+            
+            <!-- Badge de Favorito en la imagen -->
+            @if (!esElDueno && esFavorito()) {
+              <div class="badge-favorito">
+                ❤️ En favoritos
+              </div>
+            }
           </div>
 
           <!-- Miniaturas -->
@@ -109,6 +130,17 @@
               </button>
             } @else {
               <!-- Si NO es el dueño -->
+              
+              <!-- Botón de Favoritos (alternativa grande) -->
+              <button 
+                class="btn-favorito"
+                (click)="toggleFavorito()"
+                [disabled]="toggleandoFavorito()"
+                [class.activo]="esFavorito()"
+              >
+                {{ toggleandoFavorito() ? '⏳ Actualizando...' : esFavorito() ? '❤️ En Favoritos' : '🤍 Agregar a Favoritos' }}
+              </button>
+              
               <button class="btn-contactar" (click)="contactarVendedor()">
                 💬 Contactar Vendedor
               </button>

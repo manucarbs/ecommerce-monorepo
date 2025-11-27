@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductoService } from '../../services/producto.service';
+import { FavoritosService } from '../../services/favoritos.service';
 import { Producto } from '../../interface/IProducto';
 import { AuthService } from '@auth0/auth0-angular';
 
@@ -16,6 +17,7 @@ export class ProductoDetalle implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productoSrv = inject(ProductoService);
+  private favoritosSrv = inject(FavoritosService);
   public auth = inject(AuthService);
 
   // Estado
@@ -32,6 +34,15 @@ export class ProductoDetalle implements OnInit {
 
   // Acciones
   eliminando = signal<boolean>(false);
+  
+  // Favoritos
+  toggleandoFavorito = signal<boolean>(false);
+  
+  // Computed para saber si es favorito
+  esFavorito = computed(() => {
+    const p = this.producto();
+    return p ? this.favoritosSrv.esFavorito(p.id) : false;
+  });
 
   ngOnInit(): void {
     // Obtener ID del producto de la URL
@@ -46,6 +57,8 @@ export class ProductoDetalle implements OnInit {
     this.auth.user$.subscribe((user) => {
       if (user?.sub) {
         this.currentUserSub.set(user.sub);
+        // Cargar IDs de favoritos al iniciar
+        this.favoritosSrv.cargarIdsFavoritos().subscribe();
       }
     });
 
@@ -76,7 +89,6 @@ export class ProductoDetalle implements OnInit {
     const p = this.producto();
     if (!p) return [];
 
-    // Prioridad: imagenesUrl > imagenUrl > placeholder
     if (p.imagenesUrl && p.imagenesUrl.length > 0) {
       return p.imagenesUrl;
     }
@@ -123,12 +135,31 @@ export class ProductoDetalle implements OnInit {
     return p !== null && currentSub !== null && p.ownerSub === currentSub;
   }
 
+  // ========== FAVORITOS ==========
+
+  toggleFavorito(): void {
+    const p = this.producto();
+    if (!p) return;
+
+    this.toggleandoFavorito.set(true);
+
+    this.favoritosSrv.toggle(p.id).subscribe({
+      next: () => {
+        this.toggleandoFavorito.set(false);
+      },
+      error: (err) => {
+        console.error('Error al toggle favorito:', err);
+        alert('❌ Error al actualizar favoritos');
+        this.toggleandoFavorito.set(false);
+      }
+    });
+  }
+
   // ========== ACCIONES ==========
 
   editarProducto(): void {
     const p = this.producto();
     if (!p) return;
-
     this.router.navigate(['/editar-producto', p.id]);
   }
 
@@ -162,8 +193,6 @@ export class ProductoDetalle implements OnInit {
   contactarVendedor(): void {
     const p = this.producto();
     if (!p) return;
-
-    // TODO: Implementar sistema de mensajería
     alert(`Contactar al vendedor\nProducto: ${p.titulo}\nVendedor ID: ${p.ownerId}`);
   }
 

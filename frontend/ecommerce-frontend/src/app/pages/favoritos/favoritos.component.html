@@ -1,0 +1,107 @@
+<div class="screen">
+  <!-- Header -->
+  <header class="header">
+    <button class="btn-back" (click)="volver()">← Volver</button>
+    <h1 class="header-title">MIS FAVORITOS</h1>
+    <div class="header-count">
+      <span class="badge-count">{{ cantidadFavoritos }}</span>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando favoritos...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorMsg()) {
+    <div class="error-container">
+      <p>❌ {{ errorMsg() }}</p>
+      <button class="btn-retry" (click)="cargarFavoritos()">
+        🔄 Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Lista Vacía -->
+  @if (!cargando() && !errorMsg() && favoritos().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">💔</div>
+      <h2>No tienes favoritos aún</h2>
+      <p>Explora productos y agrégalos a tu lista de favoritos</p>
+      <button class="btn-primary" (click)="volver()">
+        🏠 Ir al inicio
+      </button>
+    </div>
+  }
+
+  <!-- Grid de Favoritos -->
+  @if (!cargando() && !errorMsg() && favoritos().length > 0) {
+    <main class="content">
+      <div class="favoritos-grid">
+        @for (favorito of favoritos(); track favorito.id) {
+          <article class="favorito-card">
+            <!-- Imagen del Producto -->
+            <div 
+              class="card-image" 
+              (click)="verProducto(favorito.productoId)"
+            >
+              <img 
+                [src]="favorito.producto.imagenPrincipal || favorito.producto.imagenesUrl?.[0] || 'https://via.placeholder.com/400x300?text=' + favorito.producto.titulo" 
+                [alt]="favorito.producto.titulo"
+              >
+              
+              <!-- Badge de Estado -->
+              <div 
+                class="badge-estado" 
+                [class.usado]="favorito.producto.estado === 'usado'"
+              >
+                {{ favorito.producto.estado === 'nuevo' ? '✨ Nuevo' : '🔄 Usado' }}
+              </div>
+
+              <!-- Badge de Stock -->
+              @if (favorito.producto.stock === 0) {
+                <div class="badge-agotado">❌ Agotado</div>
+              }
+            </div>
+
+            <!-- Información del Producto -->
+            <div class="card-content" (click)="verProducto(favorito.productoId)">
+              <h3 class="card-title">{{ favorito.producto.titulo }}</h3>
+              
+              <p class="card-categoria">
+                📦 {{ favorito.producto.categoria }}
+              </p>
+
+              <p class="card-precio">
+                {{ formatearPrecio(favorito.producto.precio) }}
+              </p>
+
+              <p class="card-fecha">
+                ❤️ Agregado el {{ formatearFecha(favorito.agregadoEn) }}
+              </p>
+            </div>
+
+            <!-- Botón de Eliminar -->
+            <div class="card-actions">
+              <button 
+                class="btn-eliminar"
+                (click)="eliminarFavorito(favorito, $event)"
+                [disabled]="eliminandoId() === favorito.productoId"
+              >
+                {{ 
+                  eliminandoId() === favorito.productoId 
+                    ? '⏳ Eliminando...' 
+                    : '🗑️ Eliminar' 
+                }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </main>
+  }
+</div>
