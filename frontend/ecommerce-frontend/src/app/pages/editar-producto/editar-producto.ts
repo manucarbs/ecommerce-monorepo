@@ -64,10 +64,18 @@ export class EditarProductoComponent implements OnInit {
 
     const validFiles: File[] = [];
     for (const file of files) {
-      if (!file.type.match(/^image\/(jpeg|png)$/)) continue;
-      if (file.size > 5 * 1024 * 1024) continue;
+      if (!file.type.match(/^image\/(jpeg|png)$/)) {
+        this.errorMsg.set(`❌ ${file.name}: Solo JPG y PNG`);
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        this.errorMsg.set(`❌ ${file.name}: Máximo 5MB`);
+        continue;
+      }
       validFiles.push(file);
     }
+
+    if (validFiles.length === 0) return;
 
     this.selectedFiles.set(validFiles);
     const previews: string[] = [];
@@ -102,6 +110,17 @@ export class EditarProductoComponent implements OnInit {
   guardarCambios(): void {
     const p = this.producto();
     if (!p) return;
+
+    // Validaciones básicas
+    if (!p.titulo || !p.precio || p.precio <= 0) {
+      this.errorMsg.set('❌ Completa los campos obligatorios correctamente');
+      return;
+    }
+
+    if (p.stock < 0) {
+      this.errorMsg.set('❌ El stock no puede ser negativo');
+      return;
+    }
 
     this.guardando.set(true);
     this.errorMsg.set('');
@@ -142,16 +161,23 @@ export class EditarProductoComponent implements OnInit {
     const p = this.producto();
     if (!p) return;
 
-    const updated = { ...p, imagenesUrl: urlsFinales };
+    const updated = { 
+      ...p, 
+      imagenesUrl: urlsFinales,
+      stock: p.stock || 1, // Asegurar que siempre tenga valor
+      whatsappContacto: p.whatsappContacto || undefined
+    };
 
     this.productoSrv.update(p.id, updated).subscribe({
       next: () => {
-        alert('✅ Producto actualizado correctamente');
-        this.router.navigate(['/producto', p.id]);
+        this.errorMsg.set('✅ Producto actualizado correctamente');
+        setTimeout(() => {
+          this.router.navigate(['/producto', p.id]);
+        }, 1500);
       },
       error: (err) => {
         console.error(err);
-        this.errorMsg.set('No se pudo actualizar el producto');
+        this.errorMsg.set('❌ No se pudo actualizar el producto');
         this.guardando.set(false);
       }
     });

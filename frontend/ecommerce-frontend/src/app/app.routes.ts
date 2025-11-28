@@ -8,49 +8,59 @@ export const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'home',
-    loadComponent: () => import('./pages/productos/productos').then(m => m.Productos),
-    canActivate: [AuthGuard, ProvisionGuard]
+    loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos),
+    canActivate: [AuthGuard, ProvisionGuard],
   },
   {
     path: 'createProduct',
-    loadComponent: () => import('./pages/sell-products/sell-products').then(m => m.SellProducts),
-    canActivate: [AuthGuard]
+    loadComponent: () => import('./pages/sell-products/sell-products').then((m) => m.SellProducts),
+    canActivate: [AuthGuard],
   },
 
   {
     path: 'favoritos',
-    loadComponent: () => import('./pages/favoritos/favoritos.component').then(m => m.FavoritosComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./pages/favoritos/favoritos.component').then((m) => m.FavoritosComponent),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'carrito',
+    loadComponent: () =>
+      import('./pages/carrito/carrito.component').then((m) => m.CarritoComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'producto/:id',
-    loadComponent: () => import('./pages/producto-detalle/producto-detalle').then(m => m.ProductoDetalle),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./pages/producto-detalle/producto-detalle').then((m) => m.ProductoDetalleComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'editar-producto/:id',
     component: EditarProductoComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'callback',
-    loadComponent: () => import('./pages/callback/callback.component').then(m => m.CallbackComponent)
+    loadComponent: () =>
+      import('./pages/callback/callback.component').then((m) => m.CallbackComponent),
   },
   {
     path: '**',
-    redirectTo: 'home'
-  }
+    redirectTo: 'home',
+  },
 ];

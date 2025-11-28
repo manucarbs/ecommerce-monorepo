@@ -49,7 +49,8 @@ export class SellProducts implements OnInit {
       nuevaCategoria: [''],
       estado: ['nuevo', [Validators.required]],
       precio: [null, [Validators.required, Validators.min(0.01)]],
-      stock: [1, [Validators.min(0)]]
+      stock: [1, [Validators.required, Validators.min(0)]], 
+      whatsappContacto: ['', [Validators.pattern(/^\+?\d{8,15}$/)]] // 🆕 WhatsApp opcional
     });
 
     this.productoSrv.getAll().subscribe({
@@ -214,7 +215,8 @@ export class SellProducts implements OnInit {
           descripcion: (this.form.value.descripcion ?? '').toString(),
           precio: Number(this.form.value.precio),
           stock: Number(this.form.value.stock ?? 1),
-          imagenesUrl: urls
+          imagenesUrl: urls,
+          whatsappContacto: this.form.value.whatsappContacto?.trim() || undefined // 🆕
         };
 
         this.productoSrv.create(payload).subscribe({
@@ -231,7 +233,8 @@ export class SellProducts implements OnInit {
               nuevaCategoria: '',
               estado: 'nuevo',
               precio: null,
-              stock: 1
+              stock: 1,
+              whatsappContacto: '' // 🆕
             });
 
             this.selectedFiles.set([]);

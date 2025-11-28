@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Producto, ProductoCreate } from '../interface/IProducto';
+import { Producto, ProductoCreate, ProductoconDetalle } from '../interface/IProducto'; // 🆕 Agregar ProductoconDetalle
 import { AuthService } from '@auth0/auth0-angular';
 import { environment } from '../../environments/environment';
 import { withAuthHeaders$ } from './_api-helpers';
@@ -29,11 +29,12 @@ export class ProductoService {
     );
   }
 
-  getById(id: number): Observable<Producto> {
+  // 🆕 CORREGIR: Cambiar Producto por ProductoconDetalle
+  getById(id: number): Observable<ProductoconDetalle> {
     const url = `${this.base}/${id}`;
     return withAuthHeaders$(
       this.auth,
-      (headers) => this.http.get<Producto>(url, { headers }),
+      (headers) => this.http.get<ProductoconDetalle>(url, { headers }), // 🆕 Cambiar aquí también
       '/productos'
     );
   }

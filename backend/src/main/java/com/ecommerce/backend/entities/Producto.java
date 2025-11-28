@@ -47,6 +47,9 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock = 1;
 
+    @Column(name = "whatsapp_contacto", length = 20)
+    private String whatsappContacto;
+
     // ✅ Campo JSON para almacenar múltiples imágenes en una sola columna
     @Column(name = "imagenes_json", columnDefinition = "TEXT")
     private String imagenesJson;
@@ -156,6 +159,14 @@ public class Producto {
      */
     public void setImagenesUrl(List<String> imagenesUrl) {
         this.imagenesUrl = imagenesUrl != null ? imagenesUrl : new ArrayList<>();
+    }
+
+    public String getWhatsappContacto() {
+        return whatsappContacto;
+    }
+    
+    public void setWhatsappContacto(String whatsappContacto) {
+        this.whatsappContacto = whatsappContacto;
     }
 
     // ============ JSON PROPERTIES ============
