@@ -147,12 +147,30 @@ export class Productos implements OnInit {
     return `https://via.placeholder.com/400x300?text=${encodeURIComponent(p.titulo)}`;
   }
 
+  getCategoryIcon(category: string): string {
+  const icons: {[key: string]: string} = {
+    'electronics': '📱',
+    'clothing': '👕',
+    'books': '📚',
+    'home': '🏠',
+    'sports': '⚽',
+    'beauty': '💄',
+    'toys': '🧸',
+    'food': '🍎'
+  };
+  return icons[category.toLowerCase()] || '📦';
+}
+
   goToSell() {
     this.router.navigate(['/createProduct']);
   }
 
   goToFav() {
     this.router.navigate(['/favoritos'])
+  }
+
+  goToCarrito() {
+    this.router.navigate(['/carrito'])
   }
 
   // 🆕 Método para ir al perfil/dashboard

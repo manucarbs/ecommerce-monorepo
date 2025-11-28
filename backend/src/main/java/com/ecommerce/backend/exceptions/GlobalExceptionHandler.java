@@ -39,6 +39,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Manejo de stock insuficiente (400)
+     */
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<MensajeResponse> handleStockInsuficiente(StockInsuficienteException ex) {
+        log.error("❌ Stock insuficiente: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new MensajeResponse(ex.getMessage()));
+    }
+
+    /**
+     * Manejo de argumentos no válidos (400)
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<MensajeResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.error("❌ Argumento inválido: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new MensajeResponse(ex.getMessage()));
+    }
+
+    /**
      * Manejo de errores de validación (400)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
