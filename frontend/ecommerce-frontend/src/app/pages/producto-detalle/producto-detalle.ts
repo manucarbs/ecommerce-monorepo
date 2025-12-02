@@ -1,11 +1,13 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductoService } from '../../services/producto.service';
 import { FavoritosService } from '../../services/favoritos.service';
 import { CarritoService } from '../../services/carrito.service';
 import { ProductoconDetalle, OwnerInfo } from '../../interface/IProducto';
 import { AuthService } from '@auth0/auth0-angular';
+
 
 @Component({
   selector: 'app-producto-detalle',
@@ -17,6 +19,7 @@ import { AuthService } from '@auth0/auth0-angular';
 export class ProductoDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private productoSrv = inject(ProductoService);
   private favoritosSrv = inject(FavoritosService);
   private carritoSrv = inject(CarritoService);
@@ -34,16 +37,18 @@ export class ProductoDetalleComponent implements OnInit {
   // Usuario actual
   currentUserSub = signal<string | null>(null);
 
+  origen = signal<string>('home');
+
   // Acciones
   eliminando = signal<boolean>(false);
-  
+
   // Favoritos
   toggleandoFavorito = signal<boolean>(false);
 
   // Carrito
   agregandoAlCarrito = signal<boolean>(false);
   cantidadCarrito = signal<number>(1);
-  
+
   // Computed
   esFavorito = computed(() => {
     const p = this.producto();
@@ -58,33 +63,35 @@ export class ProductoDetalleComponent implements OnInit {
   // Computed para info del vendedor
   infoVendedor = computed(() => {
     const p = this.producto();
-    
+
     console.log('🔍 DEBUG infoVendedor - Producto completo:', p);
     console.log('🔍 DEBUG infoVendedor - Owner:', p?.owner);
     console.log('🔍 DEBUG infoVendedor - WhatsApp:', p?.whatsappContacto);
     console.log('🔍 DEBUG esElDueno():', this.esElDueno());
     console.log('🔍 DEBUG currentUserSub:', this.currentUserSub());
     console.log('🔍 DEBUG producto.ownerSub:', p?.ownerSub);
-    
+
     if (!p) {
       console.warn('⚠️ No hay producto cargado');
       return null;
     }
-    
+
     if (!p.owner) {
-      console.error('❌ El producto NO tiene información del owner. El backend no está devolviendo owner.');
+      console.error(
+        '❌ El producto NO tiene información del owner. El backend no está devolviendo owner.'
+      );
       return null;
     }
-    
+
     const nombreCompleto = `${p.owner.nombre} ${p.owner.apellido}`.trim();
-    
+
     const vendedorInfo = {
       nombre: nombreCompleto || 'Vendedor',
       avatar: p.owner.pictureUrl || 'https://via.placeholder.com/80x80?text=👤',
       whatsappContacto: p.whatsappContacto,
-      tieneWhatsApp: !!p.whatsappContacto && p.whatsappContacto.length > 5
+      tieneWhatsApp: !!p.whatsappContacto && p.whatsappContacto.length > 5,
     };
-    
+
     console.log('✅ Info vendedor procesada:', vendedorInfo);
     console.log('🚀 ¿Debería mostrar sección vendedor?', !this.esElDueno());
     return vendedorInfo;
@@ -105,6 +112,10 @@ export class ProductoDetalleComponent implements OnInit {
       return;
     }
 
+    this.route.queryParams.subscribe((params) => {
+      this.origen.set(params['origen'] || 'home');
+    });
+
     this.auth.user$.subscribe((user) => {
       if (user?.sub) {
         this.currentUserSub.set(user.sub);
@@ -124,10 +135,13 @@ export class ProductoDetalleComponent implements OnInit {
       next: (producto: ProductoconDetalle) => {
         this.producto.set(producto);
         this.cargando.set(false);
-        
+
         // Debug: Verificar datos recibidos
         console.log('✅ Producto cargado:', producto.titulo);
-        console.log('👤 Owner:', producto.owner ? `${producto.owner.nombre} ${producto.owner.apellido}` : 'Sin owner');
+        console.log(
+          '👤 Owner:',
+          producto.owner ? `${producto.owner.nombre} ${producto.owner.apellido}` : 'Sin owner'
+        );
         console.log('📱 WhatsApp:', producto.whatsappContacto || 'No configurado');
       },
       error: (err) => {
@@ -198,7 +212,7 @@ export class ProductoDetalleComponent implements OnInit {
         console.error('Error al toggle favorito:', err);
         alert('❌ Error al actualizar favoritos');
         this.toggleandoFavorito.set(false);
-      }
+      },
     });
   }
 
@@ -224,7 +238,7 @@ export class ProductoDetalleComponent implements OnInit {
         console.error('Error al agregar al carrito:', err);
         alert('❌ Error al agregar producto al carrito');
         this.agregandoAlCarrito.set(false);
-      }
+      },
     });
   }
 
@@ -244,14 +258,14 @@ export class ProductoDetalleComponent implements OnInit {
         console.error('Error al eliminar del carrito:', err);
         alert('❌ Error al eliminar producto del carrito');
         this.agregandoAlCarrito.set(false);
-      }
+      },
     });
   }
 
   aumentarCantidad(): void {
     const p = this.producto();
     const cantidadActual = this.cantidadCarrito();
-    
+
     if (p && cantidadActual < p.stock) {
       this.cantidadCarrito.set(cantidadActual + 1);
     }
@@ -272,7 +286,7 @@ export class ProductoDetalleComponent implements OnInit {
   contactarVendedor(): void {
     const vendedor = this.infoVendedor();
     const producto = this.producto();
-    
+
     if (!vendedor || !producto) {
       console.error('No hay información del vendedor o producto');
       return;
@@ -285,14 +299,18 @@ export class ProductoDetalleComponent implements OnInit {
     }
 
     // Mensaje predefinido con información del producto
-    const mensaje = `¡Hola ${vendedor.nombre}! 👋\n\nMe interesa tu producto:\n\n📦 *${producto.titulo}*\n💰 Precio: ${this.formatearPrecio(producto.precio)}\n📝 Estado: ${producto.estado === 'nuevo' ? 'Nuevo ✨' : 'Usado 🔄'}\n\n¿Todavía está disponible? 🎯`;
-    
+    const mensaje = `¡Hola ${vendedor.nombre}! 👋\n\nMe interesa tu producto:\n\n📦 *${
+      producto.titulo
+    }*\n💰 Precio: ${this.formatearPrecio(producto.precio)}\n📝 Estado: ${
+      producto.estado === 'nuevo' ? 'Nuevo ✨' : 'Usado 🔄'
+    }\n\n¿Todavía está disponible? 🎯`;
+
     // Formatear número (remover espacios, guiones, etc.)
     const numeroWhatsApp = this.formatearNumeroWhatsApp(vendedor.whatsappContacto!);
-    
+
     // Crear URL de WhatsApp
     const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-    
+
     // Redirigir automáticamente
     window.open(urlWhatsApp, '_blank', 'noopener,noreferrer');
   }
@@ -307,54 +325,57 @@ export class ProductoDetalleComponent implements OnInit {
   editarProducto(): void {
     const p = this.producto();
     if (!p) return;
-    this.router.navigate(['/editar-producto', p.id]);
+    this.router.navigate(['/editar-producto', p.id], {
+    queryParams: { origen: '/producto'} 
+    });
   }
 
-eliminarProducto(): void {
-  const p = this.producto();
-  if (!p) return;
+  eliminarProducto(): void {
+    const p = this.producto();
+    if (!p) return;
 
-  const confirmacion = confirm(
-    `¿Estás seguro de eliminar "${p.titulo}"?\n\n` +
-      `Las ${this.imagenes.length} imagen(es) también se eliminarán de Cloudinary.\n\n` +
-      `Esta acción no se puede deshacer.`
-  );
+    const confirmacion = confirm(
+      `¿Estás seguro de eliminar "${p.titulo}"?\n\n` +
+        `Las ${this.imagenes.length} imagen(es) también se eliminarán de Cloudinary.\n\n` +
+        `Esta acción no se puede deshacer.`
+    );
 
-  if (!confirmacion) return;
+    if (!confirmacion) return;
 
-  this.eliminando.set(true);
+    this.eliminando.set(true);
 
-  this.productoSrv.delete(p.id).subscribe({
-    next: () => {
-      console.log('✅ Producto eliminado exitosamente');
-      alert('✅ Producto e imágenes eliminados exitosamente');
-      this.router.navigate(['/home']);
-    },
-    error: (err) => {
-      console.error('❌ Error al eliminar:', err);
-      
-      // Manejo específico de errores
-      if (err.status === 500) {
-        console.error('Error 500 del servidor:', err);
-        alert('❌ Error del servidor. El producto podría estar asociado a órdenes o favoritos.');
-      } else if (err.status === 404) {
-        alert('❌ Producto no encontrado.');
-      } else if (err.status === 403) {
-        alert('❌ No tienes permisos para eliminar este producto.');
-      } else {
-        alert('❌ Error inesperado al eliminar el producto.');
-      }
-      
-      this.eliminando.set(false);
-    },
-    complete: () => {
-      this.eliminando.set(false);
-    }
-  });
-}
+    this.productoSrv.delete(p.id).subscribe({
+      next: () => {
+        console.log('✅ Producto eliminado exitosamente');
+        alert('✅ Producto e imágenes eliminados exitosamente');
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        console.error('❌ Error al eliminar:', err);
+
+        // Manejo específico de errores
+        if (err.status === 500) {
+          console.error('Error 500 del servidor:', err);
+          alert('❌ Error del servidor. El producto podría estar asociado a órdenes o favoritos.');
+        } else if (err.status === 404) {
+          alert('❌ Producto no encontrado.');
+        } else if (err.status === 403) {
+          alert('❌ No tienes permisos para eliminar este producto.');
+        } else {
+          alert('❌ Error inesperado al eliminar el producto.');
+        }
+
+        this.eliminando.set(false);
+      },
+      complete: () => {
+        this.eliminando.set(false);
+      },
+    });
+  }
 
   volver(): void {
-    this.router.navigate(['/home']);
+    const ruta = this.origen() === 'misProductos' ? '/misProductos' : '/home';
+    this.router.navigate([ruta]);
   }
 
   formatearPrecio(precio: number): string {

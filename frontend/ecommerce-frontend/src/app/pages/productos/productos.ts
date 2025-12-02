@@ -121,7 +121,9 @@ export class Productos implements OnInit {
   }
 
   openProduct(p: Producto) {
-    this.router.navigate(['/producto', p.id]);
+    this.router.navigate(['/producto', p.id], {
+      queryParams: { origen: 'home' },
+    });
   }
 
   setTab(tab: string) {
@@ -148,29 +150,29 @@ export class Productos implements OnInit {
   }
 
   getCategoryIcon(category: string): string {
-  const icons: {[key: string]: string} = {
-    'electronics': '📱',
-    'clothing': '👕',
-    'books': '📚',
-    'home': '🏠',
-    'sports': '⚽',
-    'beauty': '💄',
-    'toys': '🧸',
-    'food': '🍎'
-  };
-  return icons[category.toLowerCase()] || '📦';
-}
+    const icons: { [key: string]: string } = {
+      electronics: '📱',
+      clothing: '👕',
+      books: '📚',
+      home: '🏠',
+      sports: '⚽',
+      beauty: '💄',
+      toys: '🧸',
+      food: '🍎',
+    };
+    return icons[category.toLowerCase()] || '📦';
+  }
 
   goToSell() {
-    this.router.navigate(['/createProduct']);
+    this.router.navigate(['/misProductos']);
   }
 
   goToFav() {
-    this.router.navigate(['/favoritos'])
+    this.router.navigate(['/favoritos']);
   }
 
   goToCarrito() {
-    this.router.navigate(['/carrito'])
+    this.router.navigate(['/carrito']);
   }
 
   // 🆕 Método para ir al perfil/dashboard

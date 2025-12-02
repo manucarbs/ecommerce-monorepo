@@ -194,39 +194,17 @@ confirmarPedido(): void {
   }
 
   const confirmar = confirm(
-    `¿Confirmar pedido?\n\n` +
+    `¿Continuar al checkout?\n\n` +
     `Total de productos: ${this.carritosConProductos().length}\n` +
     `Total de items: ${this.cantidadTotal()}\n` +
     `Total a pagar: ${this.formatearPrecio(this.total())}\n\n` +
-    `Nota: Esta es una demo. En producción aquí iría la pasarela de pago.`
+    `Serás redirigido al proceso de pago.`
   );
 
   if (!confirmar) return;
 
-  this.procesando.set(true);
-
-  // 🆕 CORRECCIÓN: Usar el nuevo método confirmarPedido
-  this.carritoSrv.confirmarPedido().subscribe({
-    next: () => {
-      this.carritosConProductos.set([]);
-      this.procesando.set(false);
-      alert('✅ ¡Pedido confirmado exitosamente!\n\nStock actualizado y carrito limpiado. 🎉');
-      this.router.navigate(['/home']);
-    },
-    error: (err: any) => {
-      console.error('Error al confirmar pedido:', err);
-      
-      // Manejo específico de errores de stock
-      if (err.status === 409 || err.message?.includes('Stock insuficiente')) {
-        alert('❌ Error: Stock insuficiente para algunos productos. Por favor actualiza tu carrito.');
-        this.cargarCarrito(); // Recargar para obtener stock actualizado
-      } else {
-        alert('❌ Error al procesar el pedido: ' + (err.message || 'Error desconocido'));
-      }
-      
-      this.procesando.set(false);
-    }
-  });
+  // 🆕 REDIRIGIR AL CHECKOUT en lugar de procesar directamente
+  this.router.navigate(['/checkout']);
 }
 
   continuarComprando(): void {

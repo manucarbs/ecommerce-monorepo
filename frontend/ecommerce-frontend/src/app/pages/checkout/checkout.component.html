@@ -1,0 +1,250 @@
+<div class="checkout-screen">
+  <!-- Header -->
+  <header class="checkout-header">
+    <div class="header-content">
+      <button class="btn-back" type="button" (click)="pasoActual() === 1 ? volverACarrito() : volverAEnvio()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Volver
+      </button>
+      
+      <h1 class="checkout-title">
+        {{ pasoActual() === 1 ? '📍 Checkout' : '💳 Pago' }}
+      </h1>
+      
+      <div class="step-indicator">
+        <div class="step-circle" [class.active]="pasoActual() >= 1">1</div>
+        <div class="step-line"></div>
+        <div class="step-circle" [class.active]="pasoActual() >= 2">2</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Alertas de Error -->
+  <div *ngIf="errorMsg()" class="error-alert">
+    <div class="alert-content">
+      <span class="alert-icon">⚠️</span>
+      <span>{{ errorMsg() }}</span>
+    </div>
+    <button class="alert-close" (click)="errorMsg.set('')">×</button>
+  </div>
+
+  <!-- Contenido Principal -->
+  <main class="checkout-content">
+    
+    <!-- PASO 1: DIRECCIÓN DE ENVÍO -->
+    <div *ngIf="pasoActual() === 1" class="checkout-form">
+      
+      <!-- Resumen del Carrito -->
+      <section class="cart-section">
+        <h2 class="section-title">
+          <span class="section-icon">🛒</span>
+          Resumen del pedido
+        </h2>
+        
+        <div class="cart-summary">
+          <div *ngFor="let item of carritoSrv.carritos()" class="cart-item">
+            <div class="cart-item-icon">
+              <span>📦</span>
+            </div>
+            <div class="cart-item-details">
+              <h3>{{ item.producto?.titulo }}</h3>
+              <div class="cart-item-meta">
+                <span class="quantity">x{{ item.cantidad }}</span>
+                <span class="unit-price">{{ formatearPrecio(item.producto?.precio || 0) }} c/u</span>
+              </div>
+            </div>
+            <div class="cart-item-subtotal">
+              {{ formatearPrecio((item.producto?.precio || 0) * item.cantidad) }}
+            </div>
+          </div>
+          
+          <div class="cart-total">
+            <div class="total-label">Total del pedido</div>
+            <div class="total-amount">{{ formatearPrecio(totalCarrito()) }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Formulario de Dirección -->
+      <section class="address-section">
+        <h2 class="section-title">
+          <span class="section-icon">📍</span>
+          Información de envío
+        </h2>
+
+        <div class="form-fields">
+          <div class="form-group">
+            <label for="direccion" class="form-label">Dirección completa *</label>
+            <textarea 
+              id="direccion"
+              [(ngModel)]="checkoutData.direccionEnvio"
+              name="direccion"
+              rows="3"
+              placeholder="Calle, número, colonia, código postal..."
+              class="form-textarea"
+              required
+            ></textarea>
+            <div class="form-hint">Todos los campos con * son obligatorios</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ciudad" class="form-label">Ciudad *</label>
+              <input 
+                id="ciudad"
+                type="text"
+                [(ngModel)]="checkoutData.ciudad"
+                name="ciudad"
+                placeholder="Ej: San Salvador"
+                class="form-input"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="telefono" class="form-label">Teléfono *</label>
+              <input 
+                id="telefono"
+                type="tel"
+                [(ngModel)]="checkoutData.telefono"
+                name="telefono"
+                placeholder="+503 XXXX XXXX"
+                class="form-input"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="referencia" class="form-label">Referencias adicionales</label>
+            <input 
+              id="referencia"
+              type="text"
+              [(ngModel)]="checkoutData.referencia"
+              name="referencia"
+              placeholder="Ej: Casa color azul, frente al parque, etc."
+              class="form-input"
+            >
+            <div class="form-hint">Opcional - Ayuda al repartidor a encontrar tu dirección</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- PASO 2: PAGO -->
+    <div *ngIf="pasoActual() === 2" class="checkout-form">
+      
+      <!-- Resumen de la Orden -->
+      <section class="order-section">
+        <h2 class="section-title">
+          <span class="section-icon">📋</span>
+          Confirmación de orden
+        </h2>
+        
+        <div class="order-summary">
+          <div class="summary-header">
+            <span class="order-number">Orden #{{ ordenNumero() }}</span>
+            <span class="order-date">{{ today | date:'mediumDate' }}</span>
+          </div>
+          
+          <div class="summary-details">
+            <div class="detail-item">
+              <span class="detail-label">Dirección:</span>
+              <span class="detail-value">{{ checkoutData.direccionEnvio }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Ciudad:</span>
+              <span class="detail-value">{{ checkoutData.ciudad }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Teléfono:</span>
+              <span class="detail-value">{{ checkoutData.telefono }}</span>
+            </div>
+            <div class="detail-item" *ngIf="checkoutData.referencia">
+              <span class="detail-label">Referencias:</span>
+              <span class="detail-value">{{ checkoutData.referencia }}</span>
+            </div>
+          </div>
+          
+          <div class="order-total">
+            <div class="total-label">Total a pagar</div>
+            <div class="total-amount">{{ formatearPrecio(totalCarrito()) }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Formulario de Pago -->
+      <section class="payment-section">
+        <h2 class="section-title">
+          <span class="section-icon">💳</span>
+          Método de pago
+        </h2>
+
+        <div class="payment-fields">
+          <!-- Stripe Card Element -->
+          <div class="form-group">
+            <label class="form-label">Tarjeta de crédito/débito *</label>
+            <div class="stripe-container">
+              <div #cardElementRef id="stripe-card-element" class="stripe-element"></div>
+            </div>
+            <div *ngIf="cardError()" class="stripe-error">{{ cardError() }}</div>
+            <div class="form-hint">Los datos de tu tarjeta se procesan de forma segura a través de Stripe</div>
+          </div>
+
+          <!-- Información de Modo de Prueba -->
+          <div class="test-mode-info">
+            <div class="test-mode-header">
+              <span class="test-icon">🔒</span>
+              <span class="test-title">Modo de prueba - Datos de ejemplo:</span>
+            </div>
+            <div class="test-details">
+              <div class="test-row">
+                <span class="test-label">Número de tarjeta:</span>
+                <code class="test-value">4242 4242 4242 4242</code>
+              </div>
+              <div class="test-row">
+                <span class="test-label">Fecha de expiración:</span>
+                <code class="test-value">12/34</code>
+              </div>
+              <div class="test-row">
+                <span class="test-label">CVC:</span>
+                <code class="test-value">123</code>
+              </div>
+              <div class="test-row">
+                <span class="test-label">Código postal:</span>
+                <code class="test-value">Cualquier código de 5 dígitos</code>
+              </div>
+            </div>
+            <div class="test-note">
+              ⚠️ Esta es una transacción de prueba. No se realizarán cargos reales.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Barra de Acciones -->
+  <footer class="actions-footer">
+    <div class="actions-content">
+      <div class="actions-buttons">
+        <button 
+          type="button" 
+          class="btn-primary"
+          (click)="pasoActual() === 1 ? avanzarAPago() : procesarPago()"
+          [disabled]="procesandoPago() || cargando()"
+          [class.loading]="procesandoPago()"
+        >
+          <span class="button-icon">{{ pasoActual() === 1 ? '→' : '💳' }}</span>
+          <span class="button-text">
+            {{ procesandoPago() ? 'Procesando...' : 
+               (pasoActual() === 1 ? 'Continuar al pago' : 'Pagar ' + formatearPrecio(totalCarrito())) }}
+          </span>
+          <span class="loading-spinner" *ngIf="procesandoPago()"></span>
+        </button>
+      </div>
+    </div>
+  </footer>
+</div>
