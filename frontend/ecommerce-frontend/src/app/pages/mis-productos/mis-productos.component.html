@@ -1,0 +1,165 @@
+<div class="my-products-screen">
+  <!-- Header -->
+  <header class="my-products-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="volverAHome()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Volver
+      </button>
+
+      <h1 class="page-title">MIS PRODUCTOS</h1>
+
+      <div class="header-buttons">
+        <button class="btn-dashboard" (click)="irADashboard()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 3H3V10H10V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M21 3H14V10H21V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M21 14H14V21H21V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M10 14H3V21H10V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Dashboard
+        </button>
+
+        <button class="btn-publish" (click)="navegarAPublicar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Publicar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="my-products-content">
+    <!-- Estados de carga y error -->
+    @if (cargando()) {
+      <div class="loading-state">
+        <div class="loading-spinner-large"></div>
+        <p>Cargando tus productos...</p>
+      </div>
+    }
+
+    @if (errorMsg() && !cargando()) {
+      <div class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h3>Error al cargar productos</h3>
+        <p>{{ errorMsg() }}</p>
+        <button class="btn-retry" (click)="cargarMisProductos()">Reintentar</button>
+      </div>
+    }
+
+    <!-- Lista de productos -->
+    @if (!cargando() && !errorMsg()) {
+      <div class="products-section">
+        <!-- Encabezado con contador -->
+        <div class="section-header">
+          <h2 class="section-title">Tus Productos Publicados</h2>
+          <span class="products-count">{{ productos().length }} producto{{ productos().length !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <!-- Grid de productos -->
+        @if (productos().length > 0) {
+          <div class="my-products-grid">
+            @for (producto of productos(); track producto.id) {
+              <div class="my-product-card">
+                <!-- Imagen del producto -->
+                <div class="product-image-container" (click)="verDetalle(producto.id)">
+                  <img 
+                    [src]="getImagen(producto)" 
+                    [alt]="producto.titulo"
+                    class="product-image"
+                    (error)="producto.imagenUrl = 'https://via.placeholder.com/300x200?text=Sin+imagen'"
+                >
+                  
+                  <!-- Badges de estado -->
+                  <div class="product-badges">
+                    <span class="badge-state" [class.used]="producto.estado === 'usado'">
+                      {{ producto.estado === 'nuevo' ? '✨ Nuevo' : '🔄 Usado' }}
+                    </span>
+                    @if (producto.stock === 0) {
+                      <span class="badge-sold-out">❌ Agotado</span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Información del producto -->
+                <div class="product-info" (click)="verDetalle(producto.id)">
+                  <h3 class="product-title">{{ producto.titulo }}</h3>
+                  <p class="product-description">{{ producto.descripcion }}</p>
+                  
+                  <div class="product-meta">
+                    <span class="product-price">{{ formatearPrecio(producto.precio) }}</span>
+                    <span class="product-stock" [class.low-stock]="producto.stock < 5">
+                      Stock: {{ producto.stock }}
+                    </span>
+                  </div>
+
+                  <div class="product-dates">
+                    <small>Publicado: {{ formatearFecha(producto.creadoEn) }}</small>
+                    @if (producto.actualizadoEn !== producto.creadoEn) {
+                      <small>Editado: {{ formatearFecha(producto.actualizadoEn) }}</small>
+                    }
+                  </div>
+                </div>
+
+                <!-- Acciones del propietario -->
+                <div class="owner-actions">
+                  <button 
+                    class="btn-edit"
+                    (click)="editarProducto(producto.id)"
+                    title="Editar producto"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Editar
+                  </button>
+
+                  <button 
+                    class="btn-delete"
+                    (click)="eliminarProducto(producto.id, producto.titulo)"
+                    [disabled]="eliminandoId() === producto.id"
+                    title="Eliminar producto"
+                  >
+                    @if (eliminandoId() === producto.id) {
+                      <div class="mini-spinner"></div>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    }
+                    {{ eliminandoId() === producto.id ? 'Eliminando...' : 'Eliminar' }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Estado vacío -->
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>No tienes productos publicados</h3>
+            <p>Comienza a vender publicando tu primer producto</p>
+            <button class="btn-publish-large" (click)="navegarAPublicar()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Publicar Primer Producto
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

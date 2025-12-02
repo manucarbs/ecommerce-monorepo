@@ -3,10 +3,6 @@ import { inject } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { mergeMap, catchError, throwError } from 'rxjs';
 
-/**
- * Interceptor HTTP que agrega automáticamente el token de Auth0
- * a todas las peticiones hacia el backend
- */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 
@@ -16,30 +12,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     return auth.getAccessTokenSilently().pipe(
       mergeMap(token => {
-        console.log('✅ Token obtenido:', token ? 'Sí (oculto por seguridad)' : 'No');
+        console.log('✅ Token obtenido EXITOSAMENTE');
+        console.log('📦 Token (primeros 20 chars):', token.substring(0, 20) + '...');
         
-        // Clonar la petición y agregar el header Authorization
         const clonedReq = req.clone({
           setHeaders: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'Content-Type': req.headers.get('Content-Type') || 'application/json'
           }
-        });
-
-        console.log('📤 Headers enviados:', {
-          Authorization: token ? 'Bearer [TOKEN]' : 'Sin token',
-          'Content-Type': clonedReq.headers.get('Content-Type')
         });
 
         return next(clonedReq);
       }),
       catchError(error => {
-        console.error('❌ Error al obtener token:', error);
-        // Si falla la obtención del token, continuar sin él
-        return next(req);
+        console.error('❌ ERROR DETALLADO en getAccessTokenSilently():');
+        console.error('Error object:', error);
+        console.error('Error code:', error.error);
+        console.error('Error description:', error.error_description);
+        console.error('Error message:', error.message);
+        console.error('Full error:', JSON.stringify(error, null, 2));
+        
+        // IMPORTANTE: No continuar sin token, lanzar el error
+        return throwError(() => new Error(`No se pudo obtener token: ${error.error || error.message}`));
       })
     );
   }
 
-  // Para otras peticiones (no al backend), continuar sin modificar
   return next(req);
 };

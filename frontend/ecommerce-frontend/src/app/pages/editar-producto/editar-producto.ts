@@ -12,7 +12,7 @@ import { Producto } from '../../interface/IProducto';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './editar-producto.html',
-  styleUrls: ['./editar-producto.css']
+  styleUrls: ['./editar-producto.css'],
 })
 export class EditarProductoComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -24,6 +24,7 @@ export class EditarProductoComponent implements OnInit {
   guardando = signal(false);
   errorMsg = signal('');
   progresoUpload = signal('');
+  origen = signal<string>('producto');
 
   // Manejo de imágenes
   selectedFiles = signal<File[]>([]);
@@ -38,6 +39,10 @@ export class EditarProductoComponent implements OnInit {
       return;
     }
 
+    this.route.queryParams.subscribe((params) => {
+      this.origen.set(params['origen'] || 'producto');
+    });
+
     this.productoSrv.getById(Number(id)).subscribe({
       next: (data) => {
         this.producto.set(data);
@@ -47,7 +52,7 @@ export class EditarProductoComponent implements OnInit {
         console.error(err);
         this.errorMsg.set('Error al cargar el producto');
         this.cargando.set(false);
-      }
+      },
     });
   }
 
@@ -79,9 +84,9 @@ export class EditarProductoComponent implements OnInit {
 
     this.selectedFiles.set(validFiles);
     const previews: string[] = [];
-    validFiles.forEach(file => {
+    validFiles.forEach((file) => {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = (e) => {
         previews.push(e.target?.result as string);
         this.previewUrls.set([...previews]);
       };
@@ -136,13 +141,13 @@ export class EditarProductoComponent implements OnInit {
     this.subiendoImagenes = true;
     this.progresoUpload.set('📤 Subiendo imágenes a Cloudinary...');
 
-    const uploadObservables = this.selectedFiles().map(file =>
+    const uploadObservables = this.selectedFiles().map((file) =>
       this.productoSrv.uploadImage(file).pipe(catchError(() => of(null)))
     );
 
     forkJoin(uploadObservables).subscribe({
       next: (results) => {
-        const nuevasUrls = results.filter(r => r !== null).map(r => r!.url);
+        const nuevasUrls = results.filter((r) => r !== null).map((r) => r!.url);
         const urlsFinales = [...(p.imagenesUrl || []), ...nuevasUrls];
         this.subiendoImagenes = false;
         this.progresoUpload.set('');
@@ -153,7 +158,7 @@ export class EditarProductoComponent implements OnInit {
         this.errorMsg.set('❌ Error al subir imágenes');
         this.guardando.set(false);
         this.subiendoImagenes = false;
-      }
+      },
     });
   }
 
@@ -161,34 +166,39 @@ export class EditarProductoComponent implements OnInit {
     const p = this.producto();
     if (!p) return;
 
-    const updated = { 
-      ...p, 
+    const updated = {
+      ...p,
       imagenesUrl: urlsFinales,
       stock: p.stock || 1, // Asegurar que siempre tenga valor
-      whatsappContacto: p.whatsappContacto || undefined
+      whatsappContacto: p.whatsappContacto || undefined,
     };
 
     this.productoSrv.update(p.id, updated).subscribe({
       next: () => {
         this.errorMsg.set('✅ Producto actualizado correctamente');
         setTimeout(() => {
-          this.router.navigate(['/producto', p.id]);
+          const ruta = this.origen() === 'misProductos' ? '/misProductos' : `/producto/${p.id}`;
+          this.router.navigate([ruta]);
         }, 1500);
       },
       error: (err) => {
         console.error(err);
         this.errorMsg.set('❌ No se pudo actualizar el producto');
         this.guardando.set(false);
-      }
+      },
     });
   }
 
   cancelar(): void {
     const p = this.producto();
-    if (p) {
-      this.router.navigate(['/producto', p.id]);
-    } else {
+    if (!p) {
       this.router.navigate(['/home']);
+      return;
     }
+
+    // 👇 MODIFICAR ESTA LÓGICA
+    const ruta = this.origen() === 'misProductos' ? '/misProductos' : `/producto/${p.id}`;
+
+    this.router.navigate([ruta]);
   }
 }
