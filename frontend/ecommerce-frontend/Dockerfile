@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copiar la carpeta dist ya generada
-COPY /dist/ecommerce-frontend /usr/share/nginx/html/
+COPY dist/ecommerce-frontend /usr/share/nginx/html/
 
 # Configuración SPA
 COPY nginx.conf /etc/nginx/conf.d/default.conf
