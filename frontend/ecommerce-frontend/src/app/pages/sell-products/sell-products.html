@@ -1,0 +1,286 @@
+<div class="product-publish-screen">
+  <!-- Header Mejorado -->
+  <header class="publish-header">
+    <div class="header-content">
+      <button class="btn-back" type="button" (click)="goHome()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Volver
+      </button>
+      
+      <h1 class="publish-title">PUBLICAR PRODUCTO</h1>
+      
+      <div class="header-spacer"></div>
+    </div>
+  </header>
+
+  <!-- Estados -->
+  <div class="state-messages">
+    <div *ngIf="okMsg" class="alert success">
+      <div class="alert-icon">✅</div>
+      <div class="alert-content">{{ okMsg }}</div>
+    </div>
+    
+    <div *ngIf="errorMsg" class="alert error">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">{{ errorMsg }}</div>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <main class="publish-content">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="publish-form">
+      
+      <!-- Sección de Fotos -->
+      <section class="form-section photos-section">
+        <h2 class="section-title">
+          <span class="section-icon">📸</span>
+          Fotos del Producto
+        </h2>
+        
+        <div class="upload-area">
+          <input 
+            type="file" 
+            id="imagenes"
+            accept="image/jpeg,image/png" 
+            multiple
+            (change)="onFileSelected($event)"
+            class="file-input"
+            [disabled]="enviando"
+          >
+          <label for="imagenes" class="upload-label">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+              <strong>Seleccionar imágenes</strong>
+              <span>Máximo 5 imágenes • JPG o PNG • 5MB cada una</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Previsualizaciones -->
+        <div class="previews-grid" *ngIf="previewUrls().length > 0">
+          <div class="preview-card" *ngFor="let url of previewUrls(); let i = index">
+            <div class="preview-image-container">
+              <img [src]="url" [alt]="'Preview ' + (i + 1)" class="preview-image">
+              <button 
+                type="button" 
+                (click)="removePreview(i)" 
+                class="btn-remove-preview"
+                [disabled]="enviando"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="preview-badge" *ngIf="i === 0">Principal</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progreso de subida -->
+        <div class="upload-progress" *ngIf="progresoUpload()">
+          <div class="progress-indicator">
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <span class="progress-text">{{ progresoUpload() }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de Detalles -->
+      <section class="form-section details-section">
+        <h2 class="section-title">
+          <span class="section-icon">📋</span>
+          Detalles del Producto
+        </h2>
+
+        <div class="form-grid">
+          <!-- Título -->
+          <div class="form-group">
+            <label for="titulo" class="form-label">Título del Producto *</label>
+            <input 
+              id="titulo" 
+              type="text" 
+              formControlName="titulo" 
+              placeholder="Ej: iPhone 13 Pro Max 256GB"
+              class="form-input"
+              [class.invalid]="f['titulo']?.invalid && (f['titulo']?.dirty || f['titulo']?.touched)"
+            >
+            <div class="validation-errors" *ngIf="f['titulo']?.invalid && (f['titulo']?.dirty || f['titulo']?.touched)">
+              <span *ngIf="f['titulo']?.errors?.['required']">El título es obligatorio</span>
+              <span *ngIf="f['titulo']?.errors?.['minlength']">Mínimo 3 caracteres</span>
+              <span *ngIf="f['titulo']?.errors?.['maxlength']">Máximo 120 caracteres</span>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group">
+            <label for="descripcion" class="form-label">Descripción *</label>
+            <textarea 
+              id="descripcion" 
+              formControlName="descripcion" 
+              placeholder="Describe tu producto en detalle... Ej: iPhone 13 Pro Max en perfecto estado, con 6 meses de uso. Incluye cargador original y funda de regalo."
+              class="form-textarea"
+              [class.invalid]="f['descripcion']?.invalid && (f['descripcion']?.dirty || f['descripcion']?.touched)"
+            ></textarea>
+            <div class="validation-errors" *ngIf="f['descripcion']?.invalid && (f['descripcion']?.dirty || f['descripcion']?.touched)">
+              <span *ngIf="f['descripcion']?.errors?.['required']">La descripción es obligatoria</span>
+              <span *ngIf="f['descripcion']?.errors?.['minlength']">Mínimo 8 caracteres</span>
+              <span *ngIf="f['descripcion']?.errors?.['maxlength']">Máximo 2000 caracteres</span>
+            </div>
+          </div>
+
+          <!-- Categoría -->
+          <div class="form-group">
+            <label for="categoria" class="form-label">Categoría *</label>
+            <select 
+              id="categoria" 
+              formControlName="categoria"
+              class="form-select"
+              [class.invalid]="f['categoria']?.invalid && (f['categoria']?.dirty || f['categoria']?.touched)"
+            >
+              <option value="">Selecciona una categoría</option>
+              <option *ngFor="let c of categorias()" [value]="c">{{ c }}</option>
+              <option [value]="OTRA">Otra categoría...</option>
+            </select>
+            <div class="validation-errors" *ngIf="f['categoria']?.invalid && (f['categoria']?.dirty || f['categoria']?.touched)">
+              La categoría es obligatoria
+            </div>
+          </div>
+
+          <!-- Nueva Categoría -->
+          <div class="form-group" *ngIf="mostrarNuevaCategoria()">
+            <label for="nuevaCategoria" class="form-label">Nueva Categoría *</label>
+            <input 
+              id="nuevaCategoria" 
+              type="text" 
+              formControlName="nuevaCategoria" 
+              placeholder="Escribe el nombre de la nueva categoría"
+              class="form-input"
+              [class.invalid]="f['nuevaCategoria']?.invalid && (f['nuevaCategoria']?.dirty || f['nuevaCategoria']?.touched)"
+            >
+            <div class="validation-errors" *ngIf="f['nuevaCategoria']?.invalid && (f['nuevaCategoria']?.dirty || f['nuevaCategoria']?.touched)">
+              <span *ngIf="f['nuevaCategoria']?.errors?.['required']">Este campo es obligatorio</span>
+              <span *ngIf="f['nuevaCategoria']?.errors?.['minlength']">Mínimo 3 caracteres</span>
+              <span *ngIf="f['nuevaCategoria']?.errors?.['maxlength']">Máximo 60 caracteres</span>
+            </div>
+          </div>
+
+          <!-- Estado y Precio -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="estado" class="form-label">Estado *</label>
+              <select 
+                id="estado" 
+                formControlName="estado"
+                class="form-select"
+                [class.invalid]="f['estado']?.invalid && (f['estado']?.dirty || f['estado']?.touched)"
+              >
+                <option value="nuevo">🆕 Nuevo</option>
+                <option value="usado">🔄 Usado</option>
+              </select>
+              <div class="validation-errors" *ngIf="f['estado']?.invalid && (f['estado']?.dirty || f['estado']?.touched)">
+                El estado es obligatorio
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="precio" class="form-label">Precio (USD) *</label>
+              <div class="price-input-container">
+                <span class="currency-symbol">$</span>
+                <input 
+                  id="precio" 
+                  type="number" 
+                  step="0.01" 
+                  min="0.01" 
+                  formControlName="precio" 
+                  placeholder="0.00"
+                  class="form-input price-input"
+                  [class.invalid]="f['precio']?.invalid && (f['precio']?.dirty || f['precio']?.touched)"
+                >
+              </div>
+              <div class="validation-errors" *ngIf="f['precio']?.invalid && (f['precio']?.dirty || f['precio']?.touched)">
+                <span *ngIf="f['precio']?.errors?.['required']">El precio es obligatorio</span>
+                <span *ngIf="f['precio']?.errors?.['min']">Debe ser mayor a 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock y WhatsApp -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="stock" class="form-label">Stock Disponible *</label>
+              <input 
+                id="stock" 
+                type="number" 
+                min="0" 
+                formControlName="stock" 
+                placeholder="Ej: 10"
+                class="form-input"
+                [class.invalid]="f['stock']?.invalid && (f['stock']?.dirty || f['stock']?.touched)"
+              >
+              <div class="validation-errors" *ngIf="f['stock']?.invalid && (f['stock']?.dirty || f['stock']?.touched)">
+                <span *ngIf="f['stock']?.errors?.['required']">El stock es obligatorio</span>
+                <span *ngIf="f['stock']?.errors?.['min']">No puede ser negativo</span>
+              </div>
+              <div class="help-text">
+                💡 <strong>Stock:</strong> Número de unidades disponibles
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="whatsappContacto" class="form-label">WhatsApp (Opcional)</label>
+              <input 
+                id="whatsappContacto" 
+                type="tel" 
+                formControlName="whatsappContacto" 
+                placeholder="+50312345678"
+                maxlength="20"
+                class="form-input"
+                [class.invalid]="f['whatsappContacto']?.invalid && (f['whatsappContacto']?.dirty || f['whatsappContacto']?.touched)"
+              >
+              <div class="validation-errors" *ngIf="f['whatsappContacto']?.invalid && (f['whatsappContacto']?.dirty || f['whatsappContacto']?.touched)">
+                <span *ngIf="f['whatsappContacto']?.errors?.['pattern']">
+                  Formato inválido. Ejemplo: +50312345678
+                </span>
+              </div>
+              <div class="help-text">
+                📱 Incluye código de país para contacto directo
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Espaciador para el botón fijo -->
+      <div class="form-spacer"></div>
+    </form>
+  </main>
+
+  <!-- Barra de Acción Fija -->
+  <footer class="action-footer">
+    <div class="action-content">
+      <button 
+        class="publish-button" 
+        type="submit" 
+        [disabled]="form.invalid || enviando || selectedFiles().length === 0"
+        (click)="onSubmit()"
+      >
+        <div class="button-content">
+          <span class="button-icon" *ngIf="!enviando">🚀</span>
+          <div class="button-loading" *ngIf="enviando">
+            <div class="loading-spinner"></div>
+          </div>
+          <span class="button-text">
+            {{ enviando ? (subiendoImagenes ? 'Subiendo imágenes...' : 'Publicando producto...') : 'PUBLICAR PRODUCTO' }}
+          </span>
+        </div>
+        <div class="button-subtext" *ngIf="!enviando">
+          Tu producto será visible para todos los compradores
+        </div>
+      </button>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,26 @@
+<!-- product-card.component.html -->
+<article class="card" (click)="onClick()" tabindex="0" (keyup.enter)="onClick()">
+  <div class="img-wrap">
+    <img *ngIf="imageSrc; else placeholder"
+         [src]="imageSrc" [alt]="imageAlt || title" />
+    <ng-template #placeholder>
+      <div class="img-ph">Sin imagen</div>
+    </ng-template>
+  </div>
+
+  <div class="body">
+    <div class="title">{{ title }}</div>
+    <div class="desc" *ngIf="description">{{ description }}</div>
+
+    <div class="meta">
+      <span class="price">
+        <ng-container *ngIf="isNumber(price); else textPrice">
+          {{ price | currency:currency:'symbol':'1.2-2' }}
+        </ng-container>
+        <ng-template #textPrice>{{ price }}</ng-template>
+      </span>
+
+      <span class="badge" *ngIf="category">{{ category }}</span>
+    </div>
+  </div>
+</article>

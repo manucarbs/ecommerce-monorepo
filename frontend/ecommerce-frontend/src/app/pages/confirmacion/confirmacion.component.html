@@ -1,0 +1,67 @@
+<div class="confirmacion-container">
+  <div class="confirmacion-card">
+    <!-- Icono de éxito -->
+    <div class="success-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </div>
+    
+    <h1>¡Compra Exitosa! 🎉</h1>
+    <p class="subtitle">Tu pedido ha sido procesado correctamente</p>
+    
+    <!-- Detalles de la orden -->
+    <div class="orden-details">
+      <div class="detail-item">
+        <span class="detail-label">Número de Orden:</span>
+        <span class="detail-value">{{ ordenNumero }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="detail-label">ID de Pago:</span>
+        <span class="detail-value">{{ pagoId }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="detail-label">Fecha:</span>
+        <span class="detail-value">{{ formatearFecha(fecha) }}</span>
+      </div>
+      
+      <div class="detail-item total">
+        <span class="detail-label">Total Pagado:</span>
+        <span class="detail-value">{{ formatearPrecio(montoTotal) }}</span>
+      </div>
+    </div>
+    
+    <!-- Mensaje de confirmación -->
+    <div class="confirmacion-message">
+      <p>✅ Hemos recibido tu pago correctamente.</p>
+      <p>📧 Recibirás un correo con los detalles de tu compra.</p>
+      <p>🚚 Tu pedido será procesado y enviado pronto.</p>
+      <p>📦 Puedes rastrear tu orden en "Mis Pedidos".</p>
+    </div>
+    
+    <!-- Acciones -->
+    <div class="acciones">
+      <button (click)="descargarRecibo()" class="btn-secondary">
+        📄 Descargar Recibo
+      </button>
+      
+      <button (click)="volverAHome()" class="btn-outline">
+        🏠 Continuar Comprando
+      </button>
+    </div>
+    
+    <!-- Información adicional -->
+    <div class="info-adicional">
+      <h3>¿Qué sigue?</h3>
+      <ul>
+        <li>Recibirás actualizaciones por correo electrónico</li>
+        <li>El vendedor preparará tu pedido en las próximas 24-48 horas</li>
+        <li>Puedes contactar al vendedor desde la página del producto</li>
+        <li>Para devoluciones, contacta a soporte dentro de los 30 días</li>
+      </ul>
+    </div>
+  </div>
+</div>

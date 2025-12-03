@@ -1,2 +1,3 @@
 # Archivos de entorno
 .env
+.env.dev
