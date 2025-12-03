@@ -15,7 +15,7 @@ export const environment = {
     scope: 'openid profile email',
 
     // URL del FRONTEND en Render
-    redirectUri: 'https://ecommerce-frontend.onrender.com',
+    redirectUri: 'https://ecommerce-frontend-2sww.onrender.com',
   },
 
   // Endpoints permitidos para el interceptor
