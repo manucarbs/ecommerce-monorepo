@@ -6,13 +6,14 @@ export interface Producto {
   descripcion: string;
   precio: number;
   stock: number;
-  imagenUrl?: string;              // Campo antiguo (opcional)
-  imagenesUrl: string[];           // 🆕 Múltiples imágenes
-  imagenPrincipal?: string;        // 🆕 Primera imagen
+  imagenUrl?: string;
+  imagenesUrl: string[];
+  imagenPrincipal?: string;
   ownerId: number;
   ownerSub: string;
   creadoEn: string;
   actualizadoEn: string;
+  whatsappContacto?: string;
 }
 
 export interface ProductoCreate {
@@ -22,16 +23,20 @@ export interface ProductoCreate {
   descripcion: string;
   precio: number;
   stock: number;
-  imagenesUrl: string[];           // 🆕 Múltiples imágenes
+  imagenesUrl: string[];
+  whatsappContacto?: string;
 }
 
-// 🆕 DTO extendido con información del dueño (para vista detallada)
-export interface ProductoDetalle extends Producto {
-  owner?: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    pictureUrl: string;
-  };
+// 🆕 INTERFAZ PARA EL OWNER
+export interface OwnerInfo {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  pictureUrl: string;
+}
+
+// DTO extendido con información del dueño
+export interface ProductoconDetalle extends Producto {
+  owner: OwnerInfo; // 🆕 CORREGIDO: propiedad owner agregada
 }

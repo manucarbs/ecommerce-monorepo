@@ -2,43 +2,39 @@ package com.ecommerce.backend.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProductoCreateDto {
-
-    @NotBlank
-    @Size(max = 120)
+    
+    @NotBlank(message = "El título es obligatorio")
+    @Size(min = 3, max = 120, message = "El título debe tener entre 3 y 120 caracteres")
     private String titulo;
-
-    @NotBlank
-    @Size(max = 80)
+    
+    @NotBlank(message = "La categoría es obligatoria")
     private String categoria;
-
-    @NotBlank
-    @Size(max = 20)
+    
+    @NotBlank(message = "El estado es obligatorio")
     private String estado;
-
-    @Size(max = 2000)
+    
+    @NotBlank(message = "La descripción es obligatoria")
+    @Size(min = 8, max = 2000, message = "La descripción debe tener entre 8 y 2000 caracteres")
     private String descripcion;
-
-    @NotNull
-    @PositiveOrZero
+    
+    @NotNull(message = "El precio es obligatorio")
+    @Positive(message = "El precio debe ser mayor a 0")
     private Double precio;
-
-    @PositiveOrZero
+    
+    @NotNull(message = "El stock es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock = 1;
-
-    // 🆕 Soporta múltiples imágenes
-    @Size(max = 5, message = "Máximo 5 imágenes por producto")
-    private List<@Size(max = 2048) String> imagenesUrl = new ArrayList<>();
-
-    // ⚠️ RETROCOMPATIBILIDAD: Mantener por si el frontend antiguo envía imagenUrl
+    
+    // 🆕 Campo para múltiples imágenes
+    private java.util.List<String> imagenesUrl;
+    
+    // Para retrocompatibilidad
     private String imagenUrl;
+    
+    // 🆕 WhatsApp opcional
+    @Pattern(regexp = "^$|^\\+?\\d{8,15}$", message = "Formato de WhatsApp inválido")
+    private String whatsappContacto;
 }
