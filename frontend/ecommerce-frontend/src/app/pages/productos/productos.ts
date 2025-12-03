@@ -120,9 +120,11 @@ export class Productos implements OnInit {
     this.applyFilters(); // recalcular
   }
 
-openProduct(p: Producto) {
-  this.router.navigate(['/producto', p.id]);
-}
+  openProduct(p: Producto) {
+    this.router.navigate(['/producto', p.id], {
+      queryParams: { origen: 'home' },
+    });
+  }
 
   setTab(tab: string) {
     this.activeTab.set(tab);
@@ -147,9 +149,37 @@ openProduct(p: Producto) {
     return `https://via.placeholder.com/400x300?text=${encodeURIComponent(p.titulo)}`;
   }
 
-  goToSell() {
-    this.router.navigate(['/createProduct']);
+  getCategoryIcon(category: string): string {
+    const icons: { [key: string]: string } = {
+      electronics: '📱',
+      clothing: '👕',
+      books: '📚',
+      home: '🏠',
+      sports: '⚽',
+      beauty: '💄',
+      toys: '🧸',
+      food: '🍎',
+    };
+    return icons[category.toLowerCase()] || '📦';
   }
+
+  goToSell() {
+    this.router.navigate(['/misProductos']);
+  }
+
+  goToFav() {
+    this.router.navigate(['/favoritos']);
+  }
+
+  goToCarrito() {
+    this.router.navigate(['/carrito']);
+  }
+
+  // 🆕 Método para ir al perfil/dashboard
+  goToProfile() {
+    this.router.navigate(['/dashboard']);
+  }
+
   logout() {
     this.auth.logout({
       logoutParams: {

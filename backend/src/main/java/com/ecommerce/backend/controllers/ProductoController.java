@@ -4,13 +4,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.ecommerce.backend.dto.ProductoConDetalleDto;
 import com.ecommerce.backend.dto.ProductoCreateDto;
 import com.ecommerce.backend.entities.Producto;
 import com.ecommerce.backend.entities.Usuario;
@@ -40,11 +40,11 @@ public class ProductoController {
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Producto> getProductoById(@PathVariable Long id) {
-        Optional<Producto> producto = productoService.getProductoById(id);
+    public ResponseEntity<?> getProductoById(@PathVariable Long id) {
+        Optional<ProductoConDetalleDto> producto = productoService.getProductoConDetalle(id); // 🔥 Usar el nuevo método
         return producto
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/mine")
@@ -101,6 +101,9 @@ public class ProductoController {
             p.getImagenesUrl().add(dto.getImagenUrl());
         }
         
+        // 🔥 AGREGAR ESTA LÍNEA:
+        p.setWhatsappContacto(dto.getWhatsappContacto());
+
         p.setOwner(owner);
         p.setOwnerSub(sub);
 
@@ -157,6 +160,8 @@ public class ProductoController {
             existing.getImagenesUrl().clear();
             existing.getImagenesUrl().add(dto.getImagenUrl());
         }
+        // 🔥 AGREGAR ESTA LÍNEA:
+        existing.setWhatsappContacto(dto.getWhatsappContacto());
 
         return ResponseEntity.ok(productoService.updateProducto(existing));
     }

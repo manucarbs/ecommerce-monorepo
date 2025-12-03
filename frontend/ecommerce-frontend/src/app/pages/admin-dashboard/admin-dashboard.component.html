@@ -1,0 +1,140 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="volverAHome()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Volver
+      </button>
+    </div>
+    
+    <h1>Panel del Vendedor</h1>
+    
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="verTodosProductos()">
+        📦 Mis Productos
+      </button>
+      <button class="btn-primary" (click)="cargarDashboard()">
+        🔄 Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Cargando -->
+  <div *ngIf="cargando()" class="loading">
+    <p>Cargando dashboard...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!cargando()">
+    <!-- Tarjetas de estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>Ventas Totales</h3>
+          <p class="stat-number">{{ formatearPrecio(estadisticas().totalVentas) }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-content">
+          <h3>Órdenes Hoy</h3>
+          <p class="stat-number">{{ estadisticas().ordenesHoy }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🏪</div>
+        <div class="stat-content">
+          <h3>Productos Activos</h3>
+          <p class="stat-number">{{ estadisticas().productosActivos }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-content">
+          <h3>Promedio por Venta</h3>
+          <p class="stat-number">{{ formatearPrecio(estadisticas().promedioVenta) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de órdenes recientes -->
+    <div class="section">
+      <div class="section-header">
+        <h2>🛒 Órdenes Recientes</h2>
+      </div>
+
+      <div *ngIf="ordenes().length === 0" class="empty-state">
+        <p>No hay órdenes recientes</p>
+      </div>
+
+      <div class="orders-grid" *ngIf="ordenes().length > 0">
+        <div *ngFor="let orden of ordenes()" class="order-card">
+          <div class="order-header">
+            <h4>Orden #{{ orden.numeroOrden }}</h4>
+            <span class="order-status" [ngClass]="'status-' + orden.estado.toLowerCase()">
+              {{ orden.estado }}
+            </span>
+          </div>
+          
+          <div class="order-info">
+            <p><strong>Cliente:</strong> {{ orden.cliente?.nombre || 'Cliente' }}</p>
+            <p><strong>Total:</strong> {{ formatearPrecio(orden.total) }}</p>
+            <p><strong>Fecha:</strong> {{ formatearFecha(orden.creadoEn) }}</p>
+            <p><strong>Envío:</strong> {{ orden.direccionEnvio }}, {{ orden.ciudad }}</p>
+          </div>
+
+          <div class="order-products">
+            <p><strong>Productos:</strong></p>
+            <ul>
+              <li *ngFor="let item of orden.items">
+                {{ item.cantidad }}x {{ item.producto?.titulo || 'Producto' }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="order-actions">
+            <button class="btn-small" (click)="verDetalleOrden(orden.id)">
+              Ver Detalle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de productos -->
+    <div class="section">
+      <div class="section-header">
+        <h2>🏆 Tus Productos</h2>
+        <button class="btn-link" (click)="verTodosProductos()">
+          Ver todos →
+        </button>
+      </div>
+
+      <div *ngIf="productos().length === 0" class="empty-state">
+        <p>No tienes productos publicados</p>
+      </div>
+
+      <div class="products-grid" *ngIf="productos().length > 0">
+        <div *ngFor="let producto of productos().slice(0, 4)" class="product-card">
+          <div class="product-image">
+            <img [src]="getImagen(producto)" [alt]="producto.titulo">
+          </div>
+          <div class="product-info">
+            <h4>{{ producto.titulo }}</h4>
+            <p class="price">{{ formatearPrecio(producto.precio) }}</p>
+            <p class="stock">Stock: {{ producto.stock }}</p>
+            <p class="date">Estado: {{ producto.estado }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

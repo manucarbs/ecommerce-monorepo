@@ -1,0 +1,231 @@
+<div class="app-screen">
+  <!-- Header -->
+  <header class="top-header">
+    <button class="btn-back" (click)="continuarComprando()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Seguir Comprando
+    </button>
+    
+    <h1 class="logo-text">
+      <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z" 
+              stroke="url(#gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3B82F6" />
+            <stop offset="100%" stop-color="#8B5CF6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      MI CARRITO
+    </h1>
+    
+    <div class="header-count">
+      <span class="badge-count">{{ cantidadTotal() }}</span>
+    </div>
+  </header>
+
+  <!-- Contenido principal desplazable -->
+  <main class="main-content">
+    <!-- Loading -->
+    @if (cargando()) {
+      <div class="state" role="status" aria-live="polite">
+        <div class="loading-spinner"></div>
+        <span>Cargando carrito...</span>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (errorMsg()) {
+      <div class="state error" role="alert">
+        <div class="error-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0377 2.66667 10.2679 4L3.33975 16C2.56995 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        {{ errorMsg() }}
+        <button class="btn-retry" (click)="cargarCarrito()">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- Carrito Vacío -->
+    @if (!cargando() && carritoVacio()) {
+      <div class="state">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z" 
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Tu carrito está vacío</h3>
+        <p>Agrega productos para comenzar tu compra</p>
+        <button class="btn-primary" (click)="continuarComprando()">
+          Explorar Productos
+        </button>
+      </div>
+    }
+
+    <!-- Lista del Carrito -->
+    @if (!cargando() && !carritoVacio()) {
+      <div class="carrito-container">
+        
+        <!-- Productos en el Carrito -->
+        <section class="products-section">
+          <div class="section-header">
+            <h2 class="section-title">Productos ({{ carritosConProductos().length }})</h2>
+            <button 
+              class="btn-vaciar"
+              (click)="vaciarCarrito()"
+              [disabled]="procesando()"
+            >
+              🗑️ Vaciar Carrito
+            </button>
+          </div>
+
+          <div class="carrito-items">
+            @for (item of carritosConProductos(); track item.productoId) {
+              <article class="carrito-item">
+                <!-- Imagen del Producto -->
+                <div 
+                  class="product-image-container" 
+                  (click)="irAlProducto(item.productoId)"
+                >
+                  <img 
+                    class="product-image"
+                    [src]="obtenerImagenProducto(item.producto)" 
+                    [alt]="item.producto.titulo"
+                  >
+                  <div 
+                    class="product-badge estado" 
+                    [class.usado]="item.producto.estado === 'usado'"
+                  >
+                    {{ item.producto.estado === 'nuevo' ? '✨ Nuevo' : '🔄 Usado' }}
+                  </div>
+                </div>
+
+                <!-- Información del Producto -->
+                <div class="product-content" (click)="irAlProducto(item.productoId)">
+                  <h3 class="product-title">{{ item.producto.titulo }}</h3>
+                  
+                  <p class="product-description">
+                    📦 {{ item.producto.categoria }}
+                  </p>
+
+                  <p class="product-price">
+                    {{ formatearPrecio(item.producto.precio) }} c/u
+                  </p>
+
+                  <!-- Stock disponible -->
+                  @if (item.producto.stock < 5) {
+                    <p class="stock-warning">
+                      ⚠️ Solo quedan {{ item.producto.stock }} disponibles
+                    </p>
+                  }
+                </div>
+
+                <!-- Controles -->
+                <div class="item-controles">
+                  <!-- Selector de Cantidad -->
+                  <div class="cantidad-selector">
+                    <button 
+                      class="btn-cantidad"
+                      (click)="disminuirCantidad(item)"
+                      [disabled]="item.cantidad <= 1 || actualizandoCantidad() === item.productoId"
+                    >
+                      −
+                    </button>
+                    <span class="cantidad-display">
+                      {{ actualizandoCantidad() === item.productoId ? '⏳' : item.cantidad }}
+                    </span>
+                    <button 
+                      class="btn-cantidad"
+                      (click)="aumentarCantidad(item)"
+                      [disabled]="item.cantidad >= item.producto.stock || actualizandoCantidad() === item.productoId"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <!-- Subtotal -->
+                  <div class="subtotal">
+                    <span class="subtotal-label">Subtotal:</span>
+                    <span class="subtotal-precio">{{ formatearPrecio(item.subtotal) }}</span>
+                  </div>
+
+                  <!-- Botón Eliminar -->
+                  <button 
+                    class="btn-eliminar"
+                    (click)="eliminarItem(item)"
+                    [disabled]="eliminando() === item.productoId"
+                  >
+                    {{ eliminando() === item.productoId ? '⏳' : '🗑️ Eliminar' }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
+        <!-- Resumen del Pedido -->
+        <aside class="resumen-section">
+          <div class="resumen-card">
+            <h2 class="resumen-titulo">Resumen del Pedido</h2>
+
+            <div class="resumen-detalles">
+              <div class="detalle-row">
+                <span>Productos:</span>
+                <span>{{ carritosConProductos().length }}</span>
+              </div>
+              <div class="detalle-row">
+                <span>Total de items:</span>
+                <span>{{ cantidadTotal() }}</span>
+              </div>
+              <div class="detalle-row subtotal-row">
+                <span>Subtotal:</span>
+                <span>{{ formatearPrecio(total()) }}</span>
+              </div>
+              <div class="detalle-row">
+                <span>Envío:</span>
+                <span class="envio-gratis">GRATIS 🎉</span>
+              </div>
+            </div>
+
+            <div class="resumen-total">
+              <span class="total-label">Total:</span>
+              <span class="total-precio">{{ formatearPrecio(total()) }}</span>
+            </div>
+
+            <button 
+              class="btn-confirmar"
+              (click)="confirmarPedido()"
+              [disabled]="procesando()"
+            >
+              {{ procesando() ? '⏳ Procesando...' : '🛒 Confirmar Pedido' }}
+            </button>
+
+            <button 
+              class="btn-continuar"
+              (click)="continuarComprando()"
+            >
+              Seguir Comprando
+            </button>
+
+            <div class="nota-seguridad">
+              <p>🔒 <strong>Compra segura</strong></p>
+              <p class="nota-texto">
+                Tus datos están protegidos
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    }
+
+    <!-- Espaciador para scroll -->
+    <div class="spacer"></div>
+  </main>
+</div>

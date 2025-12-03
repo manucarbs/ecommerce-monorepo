@@ -1,0 +1,82 @@
+package com.ecommerce.backend.entities;
+
+import java.time.Instant;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Entity
+@Table(
+    name = "favoritos",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_favoritos_usuario_producto",
+            columnNames = {"id_usuario", "id_producto"}
+        )
+    },
+    indexes = {
+        @Index(name = "idx_favoritos_usuario", columnList = "id_usuario"),
+        @Index(name = "idx_favoritos_producto", columnList = "id_producto")
+    }
+)
+@NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Favorito {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_favorito")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "id_usuario",
+        nullable = false,
+        foreignKey = @ForeignKey(name = "fk_favoritos_usuarios")
+    )
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(
+        name = "id_producto",
+        nullable = false,
+        foreignKey = @ForeignKey(name = "fk_favoritos_productos")
+    )
+    private Producto producto;
+
+    @Column(name = "agregado_en", nullable = false, updatable = false)
+    private Instant agregadoEn = Instant.now();
+
+    // ============ LIFECYCLE HOOKS ============
+
+    @PrePersist
+    public void prePersist() {
+        if (agregadoEn == null) {
+            agregadoEn = Instant.now();
+        }
+    }
+
+    // ============ JSON PROPERTIES ============
+
+    @JsonProperty("usuarioId")
+    public Long getUsuarioId() {
+        return usuario != null ? usuario.getId() : null;
+    }
+
+    @JsonProperty("productoId")
+    public Long getProductoId() {
+        return producto != null ? producto.getId() : null;
+    }
+
+    // ============ CONSTRUCTORES ============
+
+    public Favorito(Usuario usuario, Producto producto) {
+        this.usuario = usuario;
+        this.producto = producto;
+        this.agregadoEn = Instant.now();
+    }
+}
