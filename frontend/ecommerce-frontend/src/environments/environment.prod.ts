@@ -2,7 +2,7 @@ export const environment = {
   production: true,
 
   // URL pública del BACKEND en Render
-  apiUri: 'https://ecommerce-backend.onrender.com',
+  apiUri: 'https://ecommerce-backend-fg3u.onrender.com',
 
   // Stripe (clave pública sí puede ir aquí)
   stripePublicKey: 'pk_test_51SZcQnB5nQdHrkcZBe4xF36k2jWH5YU3ZW9cSU4Q7NrSVY9iOP5RCw5ys7rCjFtnGt2GeIynRlPOicQcyjfh91zY00HExlMeiA',
@@ -19,5 +19,5 @@ export const environment = {
   },
 
   // Endpoints permitidos para el interceptor
-  allowedList: ['https://ecommerce-backend.onrender.com/api/*'],
+  allowedList: ['https://ecommerce-backend-fg3u.onrender.com/api/*'],
 };
