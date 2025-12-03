@@ -1,11 +1,13 @@
 package com.ecommerce.backend.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,13 +43,32 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/health", "/api/public/**").permitAll()
-                    .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(jwtAuthConverter())));
+        http
+            // 1. Deshabilita CSRF
+            .csrf(csrf -> csrf.disable())
+            
+            // 2. Configura CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // 3. Configura autorizaciones
+            .authorizeHttpRequests(auth -> auth
+                // ¡IMPORTANTE! Permite todas las peticiones OPTIONS
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
+                // Rutas públicas
+                .requestMatchers(
+                    "/health", 
+                    "/api/public/**",
+                    "/error"
+                ).permitAll()
+                
+                // Todas las demás requieren autenticación
+                .anyRequest().authenticated()
+            )
+            
+            // 4. Configura Auth0
+            .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
+                .jwtAuthenticationConverter(jwtAuthConverter())));
 
         return http.build();
     }
@@ -70,16 +91,45 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         
-        for(String o : allowedOrigins.split(",")) {
-            String origin = o.trim();
-            if (!origin.isBlank()) {
-                cfg.addAllowedOriginPattern(origin);
+        // Procesa los orígenes desde la variable
+        String[] origins = allowedOrigins.split(",");
+        for (String origin : origins) {
+            String trimmedOrigin = origin.trim();
+            if (!trimmedOrigin.isEmpty()) {
+                cfg.addAllowedOriginPattern(trimmedOrigin);
             }
         }
         
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // Añade localhost para desarrollo (si no está en la variable)
+        cfg.addAllowedOriginPattern("http://localhost:4200");
+        cfg.addAllowedOriginPattern("http://localhost:3000");
+        
+        // Métodos permitidos
+        cfg.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
+        ));
+        
+        // Headers permitidos (más completos)
+        cfg.setAllowedHeaders(Arrays.asList(
+            "Authorization", 
+            "Content-Type", 
+            "X-Requested-With",
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+            "X-Access-Token"
+        ));
+        
+        // Headers expuestos
+        cfg.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "X-Access-Token"
+        ));
+        
         cfg.setAllowCredentials(true);
+        cfg.setMaxAge(3600L);
+        
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);
         return src;
