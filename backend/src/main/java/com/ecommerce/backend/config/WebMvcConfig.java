@@ -15,7 +15,7 @@ public class WebMvcConfig {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://localhost:4200")
+            .allowedOrigins("https://ecommerce-frontend-2sww.onrender.com")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .maxAge(3600);
