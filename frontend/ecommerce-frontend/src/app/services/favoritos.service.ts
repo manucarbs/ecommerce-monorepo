@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { Favorito } from '../interface/IFavorito';
+import { environment } from '../../environments/environment'; 
 
 
 @Injectable({
@@ -9,7 +10,7 @@ import { Favorito } from '../interface/IFavorito';
 })
 export class FavoritosService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/favoritos';
+  private apiUrl = `${environment.apiUri}/api/favoritos`;
   
   // Estado reactivo
   favoritos = signal<Favorito[]>([]);

@@ -2,14 +2,15 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { Carrito } from '../interface/ICarrito';
+import { environment } from '../../environments/environment'; // ✅ Importar
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarritoService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/carritos';
-  private stockApiUrl = 'http://localhost:8080/api/stock'; // 🆕 URL para stock
+   private apiUrl = `${environment.apiUri}/api/carritos`; // ✅ Usar environment
+  private stockApiUrl = `${environment.apiUri}/api/stock`; // ✅ CORREGIDO: Usar environment
 
   // Estado reactivo - MISMA ESTRUCTURA que favoritos
   carritos = signal<Carrito[]>([]);
