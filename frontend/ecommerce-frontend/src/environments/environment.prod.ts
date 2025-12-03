@@ -9,8 +9,8 @@ export const environment = {
 
   // Auth0
   auth: {
-    domain: 'dev-4gecgtusfuow1ic0.us.auth0.com',
-    clientId: 'RBCZ6RAdWEDIoPHyHC4NT2oIQ1Dcb1xB',
+    domain: 'dev-nx0rrhsrxpvmud46.us.auth0.com',
+    clientId: 'N7dm7HrIq2eta8RRhZ3x8aTzKDGp1p5y',
     audience: 'https://ecommerce-api',
     scope: 'openid profile email',
 
